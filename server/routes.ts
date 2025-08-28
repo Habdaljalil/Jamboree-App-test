@@ -1,104 +1,169 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertMerchantSchema, insertVolunteerSchema, type Merchant, type Volunteer } from "@shared/schema";
+
+// Import Google Sheets Service
+const SHEET_ID = '1KCizb55EhOFAqmN-7SlBaUp0qHNJRZwFWhvG_ITno0w';
+const API_KEY = 'AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc';
+const MERCHANTS_RANGE = 'Sheet1!A:L';
+const VOLUNTEERS_RANGE = 'Sheet1!L:L';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby43gvbpZK9-5jRyrV1z1XJ4KG_MudXk0ry1IM158WrBPcF4WAfJjJNvTwpFB8DR_wV/exec';
+
+// Cache for Google Sheets data
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 30000; // 30 seconds
+
+async function fetchFromGoogleSheets(range: string, useCache = true) {
+  const cacheKey = `sheets_${range}`;
+  const now = Date.now();
+  
+  if (useCache && cache.has(cacheKey)) {
+    const cached = cache.get(cacheKey)!;
+    if (now - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+  }
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(`Google Sheets API error: ${data.error?.message || 'Unknown error'}`);
+  }
+  
+  cache.set(cacheKey, { data, timestamp: now });
+  return data;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Merchants endpoints
   app.get("/api/merchants", async (req, res) => {
     try {
-      const merchants = await storage.getMerchants();
+      const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE);
+      
+      if (!responseData.values || responseData.values.length === 0) {
+        return res.json([]);
+      }
+
+      const merchants = responseData.values.slice(1).map((row: string[], index: number) => ({
+        id: `merchant_${index}`,
+        business_name: row[0] || '',
+        category: row[1] || '',
+        sub_category: row[2] || '',
+        address: row[3] || '',
+        contact_person: row[4] || '',
+        phone: row[5] || '',
+        email: row[6] || '',
+        status: row[7] || 'active',
+        assigned_to: row[11] || null,
+      })).filter((m: any) => m.business_name.trim() !== '');
+
       res.json(merchants);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch merchants" });
-    }
-  });
-
-  app.get("/api/merchants/:id", async (req, res) => {
-    try {
-      const merchant = await storage.getMerchant(req.params.id);
-      if (!merchant) {
-        return res.status(404).json({ message: "Merchant not found" });
-      }
-      res.json(merchant);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch merchant" });
-    }
-  });
-
-  app.post("/api/merchants", async (req, res) => {
-    try {
-      const validatedData = insertMerchantSchema.parse(req.body);
-      const merchant = await storage.createMerchant(validatedData);
-      res.status(201).json(merchant);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid merchant data" });
-    }
-  });
-
-  app.patch("/api/merchants/:id", async (req, res) => {
-    try {
-      const merchant = await storage.updateMerchant(req.params.id, req.body);
-      if (!merchant) {
-        return res.status(404).json({ message: "Merchant not found" });
-      }
-      res.json(merchant);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to update merchant" });
+      console.error('Error fetching merchants:', error);
+      res.status(500).json({ message: "Failed to fetch merchants from Google Sheets" });
     }
   });
 
   // Volunteers endpoints
   app.get("/api/volunteers", async (req, res) => {
     try {
-      const volunteers = await storage.getVolunteers();
+      const responseData = await fetchFromGoogleSheets(VOLUNTEERS_RANGE);
+      
+      if (!responseData.values || responseData.values.length === 0) {
+        return res.json([]);
+      }
+      
+      const volunteerNames = Array.from(new Set(responseData.values
+        .slice(1)
+        .map((row: string[]) => row[0]) 
+        .filter((name: string) => name && name.trim() !== '')));
+      
+      const volunteers = volunteerNames.map((name: string, index: number) => ({
+        id: `volunteer_${index}`,
+        full_name: name,
+        email: `${name.toLowerCase().replace(/\s+/g, '.')}@email.com`,
+        phone: `(201) 555-${String(index + 1000).padStart(4, '0')}`,
+        role: "volunteer",
+        active: true
+      }));
+
       res.json(volunteers);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch volunteers" });
-    }
-  });
-
-  app.post("/api/volunteers", async (req, res) => {
-    try {
-      const validatedData = insertVolunteerSchema.parse(req.body);
-      const volunteer = await storage.createVolunteer(validatedData);
-      res.status(201).json(volunteer);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid volunteer data" });
+      console.error('Error fetching volunteers:', error);
+      res.status(500).json({ message: "Failed to fetch volunteers from Google Sheets" });
     }
   });
 
   // Assignment endpoints
   app.post("/api/assignments", async (req, res) => {
     try {
-      const { merchantId, volunteerName } = req.body;
+      const { merchantName, volunteerName } = req.body;
       
-      if (!merchantId || !volunteerName) {
-        return res.status(400).json({ message: "Merchant ID and volunteer name are required" });
+      if (!merchantName || !volunteerName) {
+        return res.status(400).json({ message: "Merchant name and volunteer name are required" });
       }
 
-      // Check if volunteer already has 3 assignments
-      const existingAssignments = await storage.getAssignmentsByVolunteer(volunteerName);
-      if (existingAssignments.length >= 3) {
-        return res.status(400).json({ message: "Volunteer already has maximum of 3 assignments" });
+      // Check current assignments for the volunteer
+      const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE, false);
+      if (responseData.values) {
+        const currentAssignments = responseData.values.slice(1)
+          .filter((row: string[]) => row[11] === volunteerName).length;
+        
+        if (currentAssignments >= 3) {
+          return res.status(400).json({ message: "Volunteer already has maximum of 3 assignments" });
+        }
       }
 
-      const merchant = await storage.assignMerchantToVolunteer(merchantId, volunteerName);
-      if (!merchant) {
-        return res.status(404).json({ message: "Merchant not found" });
-      }
+      // Call the Apps Script endpoint to update the sheet
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchantName, volunteerName })
+      });
 
-      res.json(merchant);
+      const data = await response.json();
+
+      if (data.status === "success") {
+        // Clear cache to force refresh
+        cache.clear();
+        res.json({ success: true, message: data.message });
+      } else {
+        res.status(400).json({ message: data.message || "Assignment failed" });
+      }
     } catch (error) {
+      console.error('Assignment error:', error);
       res.status(500).json({ message: "Failed to assign merchant" });
     }
   });
 
   app.get("/api/assignments/:volunteerName", async (req, res) => {
     try {
-      const assignments = await storage.getAssignmentsByVolunteer(req.params.volunteerName);
+      const volunteerName = req.params.volunteerName;
+      const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE);
+      
+      if (!responseData.values || responseData.values.length === 0) {
+        return res.json([]);
+      }
+
+      const assignments = responseData.values.slice(1)
+        .filter((row: string[]) => row[11] === volunteerName)
+        .map((row: string[], index: number) => ({
+          id: `merchant_${index}`,
+          business_name: row[0] || '',
+          category: row[1] || '',
+          sub_category: row[2] || '',
+          address: row[3] || '',
+          contact_person: row[4] || '',
+          phone: row[5] || '',
+          email: row[6] || '',
+          status: row[7] || 'active',
+          assigned_to: row[11] || null,
+        }));
+
       res.json(assignments);
     } catch (error) {
+      console.error('Error fetching assignments:', error);
       res.status(500).json({ message: "Failed to fetch assignments" });
     }
   });

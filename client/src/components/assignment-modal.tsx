@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 interface AssignmentModalProps {
   merchant: Merchant;
   volunteers: Volunteer[];
-  onAssign: (merchantId: string, volunteerName: string) => void;
+  onAssign: (merchantName: string, volunteerName: string) => void;
   onClose: () => void;
   isLoading: boolean;
 }
@@ -32,7 +32,7 @@ export default function AssignmentModal({
       return;
     }
 
-    onAssign(merchant.id, selectedVolunteer);
+    onAssign(merchant.business_name, selectedVolunteer);
     toast({
       title: "Success",
       description: `Successfully assigned ${merchant.business_name} to ${selectedVolunteer}`,

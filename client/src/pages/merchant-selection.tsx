@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Building2, Loader } from "lucide-react";
+import { Building2, Loader, RefreshCw } from "lucide-react";
 import { type Merchant, type Volunteer } from "@shared/schema";
 import SearchFilters from "@/components/search-filters";
 import MerchantCard from "@/components/merchant-card";
@@ -15,12 +15,14 @@ export default function MerchantSelection() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [subCategoryFilter, setSubCategoryFilter] = useState("all");
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
-  const [showPerformanceStats, setShowPerformanceStats] = useState(false);
   const [visibleCount, setVisibleCount] = useState(30);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Fetch merchants
-  const { data: merchants = [], isLoading: merchantsLoading } = useQuery<Merchant[]>({
+  // Fetch merchants with auto-refresh
+  const { data: merchants = [], isLoading: merchantsLoading, refetch: refetchMerchants } = useQuery<Merchant[]>({
     queryKey: ["/api/merchants"],
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    refetchIntervalInBackground: true,
   });
 
   // Fetch volunteers
@@ -30,8 +32,8 @@ export default function MerchantSelection() {
 
   // Assignment mutation
   const assignMutation = useMutation({
-    mutationFn: async ({ merchantId, volunteerName }: { merchantId: string; volunteerName: string }) => {
-      const response = await apiRequest("POST", "/api/assignments", { merchantId, volunteerName });
+    mutationFn: async ({ merchantName, volunteerName }: { merchantName: string; volunteerName: string }) => {
+      const response = await apiRequest("POST", "/api/assignments", { merchantName, volunteerName });
       return response.json();
     },
     onSuccess: () => {
@@ -64,10 +66,10 @@ export default function MerchantSelection() {
   });
 
   // Get unique categories and sub-categories
-  const categories = [...new Set(merchants.map(m => m.category))];
+  const categories = Array.from(new Set(merchants.map(m => m.category)));
   const subCategories = categoryFilter === 'all' 
-    ? [...new Set(merchants.map(m => m.sub_category))]
-    : [...new Set(merchants.filter(m => m.category === categoryFilter).map(m => m.sub_category))];
+    ? Array.from(new Set(merchants.map(m => m.sub_category)))
+    : Array.from(new Set(merchants.filter(m => m.category === categoryFilter).map(m => m.sub_category)));
 
   // Update sub-category filter when category changes
   useEffect(() => {
@@ -76,8 +78,15 @@ export default function MerchantSelection() {
     }
   }, [categoryFilter]);
 
-  const handleAssignMerchant = (merchantId: string, volunteerName: string) => {
-    assignMutation.mutate({ merchantId, volunteerName });
+  const handleAssignMerchant = (merchantName: string, volunteerName: string) => {
+    assignMutation.mutate({ merchantName, volunteerName });
+  };
+
+  // Manual refresh handler
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetchMerchants();
+    setTimeout(() => setIsRefreshing(false), 500);
   };
 
   const loadMoreMerchants = () => {
@@ -99,30 +108,18 @@ export default function MerchantSelection() {
           Browse and assign merchants for ad sponsorships in the Ridgewood Jamboree program.
         </p>
         
-        {/* Performance Stats Toggle */}
+        {/* Manual Refresh Button */}
         <button 
-          className="btn-secondary mt-4 text-xs" 
-          onClick={() => setShowPerformanceStats(!showPerformanceStats)}
-          data-testid="button-performance-stats"
+          className="btn-secondary mt-4" 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          data-testid="button-refresh"
         >
-          <span>{showPerformanceStats ? 'Hide' : 'Show'} Performance Stats</span>
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span>{isRefreshing ? 'Refreshing...' : 'Refresh Data'}</span>
         </button>
       </header>
 
-      {/* Performance Stats */}
-      {showPerformanceStats && (
-        <div className="bg-card border border-border rounded-lg p-4 mb-6" data-testid="performance-stats">
-          <h4 className="font-semibold mb-3">Performance Report</h4>
-          <div className="perf-stats grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-xs">
-            <div>Load Time: <span className="font-mono">245ms</span></div>
-            <div>Search Time: <span className="font-mono">12ms</span></div>
-            <div>Render Time: <span className="font-mono">18ms</span></div>
-            <div>Device: <span className="font-mono">Desktop</span></div>
-            <div>Memory: <span className="font-mono">23MB</span></div>
-            <div>Merchants: <span className="font-mono">{merchants.length}/{filteredMerchants.length}/{visibleMerchants.length}</span></div>
-          </div>
-        </div>
-      )}
 
       {/* Search and Filters */}
       <SearchFilters
@@ -190,8 +187,8 @@ export default function MerchantSelection() {
             onClick={loadMoreMerchants}
             data-testid="button-load-more"
           >
-            <Loader size={16} />
-            Load More Merchants
+            <Building2 size={16} />
+            Load More Merchants ({filteredMerchants.length - visibleCount} remaining)
           </button>
         </div>
       )}
@@ -201,7 +198,7 @@ export default function MerchantSelection() {
         <AssignmentModal
           merchant={selectedMerchant}
           volunteers={volunteers}
-          onAssign={handleAssignMerchant}
+          onAssign={(merchantName, volunteerName) => handleAssignMerchant(merchantName, volunteerName)}
           onClose={() => setSelectedMerchant(null)}
           isLoading={assignMutation.isPending}
         />

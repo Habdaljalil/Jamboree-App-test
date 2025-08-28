@@ -19,10 +19,11 @@ export default function MyAssignments() {
   // Fetch assignments for the selected volunteer
   const { data: assignments = [], isLoading, refetch } = useQuery<Merchant[]>({
     queryKey: ["/api/assignments", volunteerName],
-    enabled: false, // Don't auto-fetch, only when search is performed
+    enabled: !!volunteerName.trim() && searchPerformed, // Auto-fetch when volunteer name is entered
+    refetchInterval: searchPerformed ? 30000 : false, // Auto-refresh every 30 seconds when search is performed
   });
 
-  // Update filtered volunteers for autocomplete
+  // Update filtered volunteers for autocomplete and auto-search
   useEffect(() => {
     if (volunteerName.trim() && volunteers.length > 0) {
       const filtered = volunteers.filter(v => 
@@ -30,11 +31,19 @@ export default function MyAssignments() {
       ).slice(0, 5);
       setFilteredVolunteers(filtered);
       setShowSuggestions(filtered.length > 0 && volunteerName !== filtered[0]?.full_name);
+      
+      // Auto-search if exact match is found
+      const exactMatch = volunteers.find(v => 
+        v.full_name.toLowerCase() === volunteerName.toLowerCase()
+      );
+      if (exactMatch && !searchPerformed) {
+        searchAssignments(exactMatch.full_name);
+      }
     } else {
       setFilteredVolunteers([]);
       setShowSuggestions(false);
     }
-  }, [volunteerName, volunteers]);
+  }, [volunteerName, volunteers, searchPerformed]);
 
   const searchAssignments = async (nameToSearch?: string) => {
     const searchName = nameToSearch || volunteerName.trim();
