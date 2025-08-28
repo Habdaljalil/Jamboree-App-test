@@ -217,6 +217,7 @@ export default function MerchantSelection() {
           onAssign={handleAssignMerchant}
           onClose={() => setSelectedMerchant(null)}
           isLoading={assignMutation.isPending}
+          isOpen={!!selectedMerchant}
         />
       )}
     </div>

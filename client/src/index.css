@@ -111,6 +111,9 @@
   /* Card Components */
   .card-hover {
     transition: all var(--dur) var(--ease);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .card-hover:hover {
@@ -282,7 +285,20 @@
   }
 
   .grid-responsive {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .card-hover {
+    margin: 0 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    max-width: 100% !important;
   }
 }
 
@@ -296,6 +312,20 @@
   }
 
   .grid-responsive {
-    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
   }
+}
+
+/* Scroll Lock */
+.scroll-locked {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+/* Address formatting */
+.address-text {
+  word-break: break-word;
+  hyphens: auto;
 }

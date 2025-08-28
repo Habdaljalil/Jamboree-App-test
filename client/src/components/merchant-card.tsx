@@ -18,7 +18,7 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
             {getBusinessIcon(merchant.category, merchant.sub_category)}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-foreground text-lg mb-1 truncate" data-testid={`text-business-name-${merchant.id}`}>
+            <h3 className="font-semibold text-foreground text-lg mb-1" style={{wordBreak: 'break-word'}} data-testid={`text-business-name-${merchant.id}`}>
               {merchant.business_name}
             </h3>
             <div className="flex gap-1 flex-wrap">
@@ -46,7 +46,7 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
       <div className="space-y-3 mb-4">
         <div className="flex items-start gap-2">
           <MapPin size={16} className="text-muted-foreground mt-0.5 flex-shrink-0" />
-          <span className="text-sm text-muted-foreground" data-testid={`text-address-${merchant.id}`}>
+          <span className="text-sm text-muted-foreground address-text" data-testid={`text-address-${merchant.id}`}>
             {merchant.address || 'No address provided'}
           </span>
         </div>

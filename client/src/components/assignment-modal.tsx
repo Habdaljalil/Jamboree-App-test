@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, UserCheck, Check } from "lucide-react";
 import { type Merchant, type Volunteer } from "@shared/schema";
 import { getBusinessIcon } from "@/lib/google-sheets-service";
 import { useToast } from "@/hooks/use-toast";
+import ConfirmationModal from "./confirmation-modal";
 
 interface AssignmentModalProps {
   merchant: Merchant;
   volunteers: Volunteer[];
-  onAssign: (merchantName: string, volunteerName: string) => void;
+  onAssign: (merchantName: string, volunteerName: string) => Promise<void>;
   onClose: () => void;
   isLoading: boolean;
+  isOpen: boolean;
 }
 
 export default function AssignmentModal({
@@ -20,9 +22,20 @@ export default function AssignmentModal({
   isLoading,
 }: AssignmentModalProps) {
   const [selectedVolunteer, setSelectedVolunteer] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [isAssigning, setIsAssigning] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const handleAssign = async () => {
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.classList.add('scroll-locked');
+    
+    return () => {
+      document.body.classList.remove('scroll-locked');
+    };
+  }, []);
+
+  const handleAssignClick = () => {
     if (!selectedVolunteer) {
       toast({
         title: "Error",
@@ -31,13 +44,19 @@ export default function AssignmentModal({
       });
       return;
     }
+    setShowConfirmation(true);
+  };
 
+  const handleConfirmAssign = async () => {
+    setIsAssigning(true);
     try {
       await onAssign(merchant.business_name, selectedVolunteer);
       toast({
         title: "Success",
         description: `Successfully assigned ${merchant.business_name} to ${selectedVolunteer}`,
       });
+      setShowConfirmation(false);
+      onClose();
     } catch (error: any) {
       console.error('Assignment error:', error);
       toast({
@@ -45,6 +64,8 @@ export default function AssignmentModal({
         description: error.message || "Failed to assign merchant. This might be due to OAuth permissions or network issues. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -136,7 +157,7 @@ export default function AssignmentModal({
             </button>
             <button 
               className="btn-apple flex-1" 
-              onClick={handleAssign}
+              onClick={handleAssignClick}
               disabled={isLoading || !selectedVolunteer}
               data-testid="button-confirm-assignment"
             >
@@ -155,6 +176,16 @@ export default function AssignmentModal({
           </div>
         </div>
       </div>
+      
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={handleConfirmAssign}
+        merchant={merchant}
+        volunteerName={selectedVolunteer}
+        isLoading={isAssigning}
+      />
     </div>
   );
 }

@@ -66,17 +66,26 @@ export class GoogleSheetsService {
       console.log('First row (headers):', responseData.values[0]);
       
       const merchants = responseData.values.slice(1).map((row: string[], index: number): Merchant => {
+        // Build full address from columns D, E, F, G if they contain address parts
+        const addressParts = [
+          row[3]?.trim(), // Street address
+          row[4]?.trim(), // City or additional address info if not contact person
+        ].filter(part => part && part !== ''); 
+        
+        // If we have separate city/state info, use it, otherwise just use what's available
+        const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : (row[3] || 'No address provided');
+        
         return {
           id: `merchant_${index}`,
-          business_name: row[0] || '',   // Column A
-          category: row[1] || '',        // Column B
-          sub_category: row[2] || '',    // Column C
-          address: row[3] || '',         // Column D
-          contact_person: row[4] || '',   // Column E
-          phone: row[5] || '',           // Column F
-          email: row[6] || '',           // Column G
-          status: row[7] || 'active',    // Column H
-          assigned_to: row[11] || null,  // Column L (Cast Who Sold Ad)
+          business_name: row[0] || '',   // Column A - Business Name
+          category: row[1] || '',        // Column B - Category
+          sub_category: row[2] || '',    // Column C - Sub Category
+          address: fullAddress,          // Column D (+E if needed) - Full Address
+          contact_person: row[4] || '',  // Column E - Contact Person Name
+          phone: row[5] || '',           // Column F - Phone Number
+          email: row[6] || '',           // Column G - Email Address
+          status: row[7] || 'active',    // Column H - Status
+          assigned_to: row[11] || null,  // Column L - Cast Who Sold Ad
         };
       }).filter((m: Merchant) => m.business_name.trim() !== '');
 
