@@ -1,0 +1,33 @@
+{
+  "name": "Volunteer",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Full name of the volunteer"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "volunteer",
+        "coordinator",
+        "admin"
+      ],
+      "default": "volunteer",
+      "description": "Role in the organization"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the volunteer is currently active"
+    }
+  }
+}

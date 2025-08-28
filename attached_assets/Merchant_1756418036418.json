@@ -1,0 +1,48 @@
+{
+  "name": "Merchant",
+  "type": "object",
+  "properties": {
+    "business_name": {
+      "type": "string",
+      "description": "Name of the merchant business"
+    },
+    "category": {
+      "type": "string",
+      "description": "Business category"
+    },
+    "sub_category": {
+      "type": "string",
+      "description": "More specific business sub-category"
+    },
+    "address": {
+      "type": "string",
+      "description": "Business address"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Primary contact person"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email address"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending"
+      ],
+      "default": "active",
+      "description": "Merchant status"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Name of volunteer assigned to this merchant"
+    }
+  }
+}
