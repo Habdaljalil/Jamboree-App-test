@@ -1,0 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Apple Design System Variables */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  
+  /* Light mode colors */
+  --background: hsl(210, 40%, 98%);
+  --foreground: hsl(222.2, 84%, 4.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222.2, 84%, 4.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222.2, 84%, 4.9%);
+  --primary: hsl(212, 97%, 57%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222.2, 47%, 11%);
+  --muted: hsl(210, 40%, 96%);
+  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222.2, 47%, 11%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --ring: hsl(212, 97%, 57%);
+  
+  /* Design tokens */
+  --radius: 12px;
+  --blur: 20px;
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Spacing and layout */
+  --max-w: 1200px;
+  --gutter: clamp(16px, 3.5vw, 32px);
+  --section-y: clamp(40px, 10vw, 120px);
+  
+  /* Animation */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 160ms;
+  --dur: 260ms;
+  --dur-slow: 420ms;
+}
+
+.dark {
+  /* Dark mode colors */
+  --background: hsl(222.2, 84%, 4.9%);
+  --foreground: hsl(210, 40%, 98%);
+  --card: hsl(222.2, 84%, 4.9%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --popover: hsl(222.2, 84%, 4.9%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --primary: hsl(210, 80%, 55%);
+  --primary-foreground: hsl(222.2, 47%, 11%);
+  --secondary: hsl(217.2, 32.6%, 17.5%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217.2, 32.6%, 17.5%);
+  --muted-foreground: hsl(215, 20.2%, 65.1%);
+  --accent: hsl(217.2, 32.6%, 17.5%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62.8%, 55.6%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217.2, 32.6%, 17.5%);
+  --input: hsl(217.2, 32.6%, 17.5%);
+  --ring: hsl(210, 80%, 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Navigation */
+  .nav-glass {
+    backdrop-filter: saturate(180%) blur(var(--blur));
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .nav-glass {
+    background: rgba(17, 17, 17, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Card Components */
+  .card-hover {
+    transition: all var(--dur) var(--ease);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Button Components */
+  .btn-apple {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold cursor-pointer transition-all duration-200 ease-out;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+  }
+
+  .btn-apple:hover {
+    background: hsl(212, 97%, 50%);
+    transform: translateY(-1px);
+  }
+
+  .btn-apple:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium cursor-pointer transition-all duration-200 ease-out;
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--accent);
+  }
+
+  /* Input Components */
+  .input-apple {
+    @apply w-full px-4 py-3 rounded-xl transition-colors duration-200 text-sm;
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+  }
+
+  .input-apple:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Badge Components */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium;
+  }
+
+  .badge-available {
+    background: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .badge-assigned {
+    background: rgba(168, 85, 247, 0.1);
+    color: rgb(168, 85, 247);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+
+  .badge-category {
+    background: var(--muted);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+  }
+
+  /* Modal Components */
+  .modal-backdrop {
+    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  /* Suggestions Dropdown */
+  .suggestions {
+    @apply absolute top-full left-0 right-0 bg-card border border-border rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto;
+  }
+
+  .suggestion-item {
+    @apply w-full px-4 py-3 border-none bg-transparent text-left cursor-pointer text-sm text-foreground border-b border-border transition-colors duration-150;
+  }
+
+  .suggestion-item:hover {
+    background: var(--muted);
+  }
+
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Animation Classes */
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  .slide-up {
+    animation: slideUp 0.3s var(--ease);
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  /* Performance Stats */
+  .perf-stats {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 12px;
+  }
+
+  /* Navigation Components */
+  .nav-link {
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors;
+  }
+
+  .nav-link.active {
+    background: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+  }
+
+  .nav-link.active:hover {
+    background: hsl(212, 97%, 50%) !important;
+  }
+
+  .theme-toggle {
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all duration-200;
+    background: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+  }
+
+  .theme-toggle:hover {
+    background: var(--accent);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none;
+  }
+  
+  .mobile-menu {
+    display: block;
+  }
+
+  .grid-responsive {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktop-nav {
+    display: flex;
+  }
+  
+  .mobile-menu {
+    display: none;
+  }
+
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  }
+}
