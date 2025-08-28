@@ -21,10 +21,9 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
             <h3 className="font-semibold text-foreground text-lg mb-1" style={{wordBreak: 'break-word'}} data-testid={`text-business-name-${merchant.id}`}>
               {merchant.business_name}
             </h3>
-            <div className="flex gap-1 flex-wrap">
-              {merchant.category && <span className="badge badge-category">{merchant.category}</span>}
-              {merchant.sub_category && <span className="badge badge-category">{merchant.sub_category}</span>}
-            </div>
+            <p className="text-sm text-muted-foreground">
+              {merchant.category}{merchant.sub_category && ` • ${merchant.sub_category}`}
+            </p>
           </div>
         </div>
         <div className="flex-shrink-0">
