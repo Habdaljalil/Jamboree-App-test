@@ -22,7 +22,7 @@ export default function AssignmentModal({
   const [selectedVolunteer, setSelectedVolunteer] = useState("");
   const { toast } = useToast();
 
-  const handleAssign = () => {
+  const handleAssign = async () => {
     if (!selectedVolunteer) {
       toast({
         title: "Error",
@@ -32,11 +32,20 @@ export default function AssignmentModal({
       return;
     }
 
-    onAssign(merchant.business_name, selectedVolunteer);
-    toast({
-      title: "Success",
-      description: `Successfully assigned ${merchant.business_name} to ${selectedVolunteer}`,
-    });
+    try {
+      await onAssign(merchant.business_name, selectedVolunteer);
+      toast({
+        title: "Success",
+        description: `Successfully assigned ${merchant.business_name} to ${selectedVolunteer}`,
+      });
+    } catch (error: any) {
+      console.error('Assignment error:', error);
+      toast({
+        title: "Assignment Failed", 
+        description: error.message || "Failed to assign merchant. This might be due to OAuth permissions or network issues. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {

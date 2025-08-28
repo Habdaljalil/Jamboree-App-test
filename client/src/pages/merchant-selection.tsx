@@ -34,11 +34,18 @@ export default function MerchantSelection() {
   const assignMutation = useMutation({
     mutationFn: async ({ merchantName, volunteerName }: { merchantName: string; volunteerName: string }) => {
       const response = await apiRequest("POST", "/api/assignments", { merchantName, volunteerName });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Assignment failed');
+      }
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/merchants"] });
       setSelectedMerchant(null);
+    },
+    onError: (error) => {
+      console.error('Assignment failed:', error);
     },
   });
 
@@ -78,8 +85,17 @@ export default function MerchantSelection() {
     }
   }, [categoryFilter]);
 
-  const handleAssignMerchant = (merchantName: string, volunteerName: string) => {
-    assignMutation.mutate({ merchantName, volunteerName });
+  const handleAssignMerchant = async (merchantName: string, volunteerName: string) => {
+    return new Promise((resolve, reject) => {
+      assignMutation.mutate({ merchantName, volunteerName }, {
+        onSuccess: (data) => {
+          resolve(data);
+        },
+        onError: (error) => {
+          reject(error);
+        }
+      });
+    });
   };
 
   // Manual refresh handler
@@ -188,7 +204,7 @@ export default function MerchantSelection() {
             data-testid="button-load-more"
           >
             <Building2 size={16} />
-            Load More Merchants ({filteredMerchants.length - visibleCount} remaining)
+            Load More Merchants ({Math.max(0, filteredMerchants.length - visibleCount)} remaining)
           </button>
         </div>
       )}
@@ -198,7 +214,7 @@ export default function MerchantSelection() {
         <AssignmentModal
           merchant={selectedMerchant}
           volunteers={volunteers}
-          onAssign={(merchantName, volunteerName) => handleAssignMerchant(merchantName, volunteerName)}
+          onAssign={handleAssignMerchant}
           onClose={() => setSelectedMerchant(null)}
           isLoading={assignMutation.isPending}
         />

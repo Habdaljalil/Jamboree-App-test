@@ -47,28 +47,36 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
         <div className="flex items-start gap-2">
           <MapPin size={16} className="text-muted-foreground mt-0.5 flex-shrink-0" />
           <span className="text-sm text-muted-foreground" data-testid={`text-address-${merchant.id}`}>
-            {merchant.address}
+            {merchant.address || 'No address provided'}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Phone size={16} className="text-muted-foreground flex-shrink-0" />
-          <a 
-            href={`tel:${merchant.phone}`} 
-            className="text-sm text-primary hover:underline" 
-            data-testid={`link-phone-${merchant.id}`}
-          >
-            {merchant.phone}
-          </a>
+          {merchant.phone ? (
+            <a 
+              href={`tel:${merchant.phone}`} 
+              className="text-sm text-primary hover:underline" 
+              data-testid={`link-phone-${merchant.id}`}
+            >
+              {merchant.phone}
+            </a>
+          ) : (
+            <span className="text-sm text-muted-foreground">No phone</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Mail size={16} className="text-muted-foreground flex-shrink-0" />
-          <a 
-            href={`mailto:${merchant.email}`} 
-            className="text-sm text-primary hover:underline truncate"
-            data-testid={`link-email-${merchant.id}`}
-          >
-            {merchant.email}
-          </a>
+          {merchant.email ? (
+            <a 
+              href={`mailto:${merchant.email}`} 
+              className="text-sm text-primary hover:underline truncate"
+              data-testid={`link-email-${merchant.id}`}
+            >
+              {merchant.email}
+            </a>
+          ) : (
+            <span className="text-sm text-muted-foreground">No email</span>
+          )}
         </div>
       </div>
 

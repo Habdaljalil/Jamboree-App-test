@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { UserCheck, Search, Phone, Mail, MapPin } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import { type Merchant, type Volunteer } from "@shared/schema";
-import { getBusinessIcon } from "@/lib/google-sheets-service";
+import MerchantCard from "@/components/merchant-card";
 
 export default function MyAssignments() {
   const [volunteerName, setVolunteerName] = useState("");
@@ -193,63 +193,14 @@ export default function MyAssignments() {
             {assignments.map((merchant, index) => (
               <motion.div
                 key={merchant.id}
-                className="bg-card border border-border rounded-lg p-6 card-hover"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                data-testid={`assignment-card-${merchant.id}`}
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center text-xl">
-                    {getBusinessIcon(merchant.category, merchant.sub_category)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground mb-1" data-testid={`text-business-name-${merchant.id}`}>
-                      {merchant.business_name}
-                    </h3>
-                    <div className="flex gap-1 flex-wrap">
-                      {merchant.category && <span className="badge badge-category">{merchant.category}</span>}
-                      {merchant.sub_category && <span className="badge badge-category">{merchant.sub_category}</span>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {merchant.address && (
-                    <div className="flex items-start gap-2">
-                      <MapPin size={16} className="text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground" data-testid={`text-address-${merchant.id}`}>
-                        {merchant.address}
-                      </span>
-                    </div>
-                  )}
-
-                  {merchant.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone size={16} className="text-muted-foreground flex-shrink-0" />
-                      <a 
-                        href={`tel:${merchant.phone}`} 
-                        className="text-sm text-primary hover:underline" 
-                        data-testid={`link-phone-${merchant.id}`}
-                      >
-                        {merchant.phone}
-                      </a>
-                    </div>
-                  )}
-
-                  {merchant.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail size={16} className="text-muted-foreground flex-shrink-0" />
-                      <a 
-                        href={`mailto:${merchant.email}`} 
-                        className="text-sm text-primary hover:underline truncate"
-                        data-testid={`link-email-${merchant.id}`}
-                      >
-                        {merchant.email}
-                      </a>
-                    </div>
-                  )}
-                </div>
+                <MerchantCard 
+                  merchant={merchant} 
+                  onAssign={() => {}} // No assignment button for assigned merchants
+                />
               </motion.div>
             ))}
           </div>
