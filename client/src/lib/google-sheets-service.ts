@@ -69,7 +69,7 @@ export class GoogleSheetsService {
         return {
           id: `merchant_${index}`,
           business_name: row[0] || '',    // Column A - Business Name
-          category: row[1] || '',         // Column B - Category  
+          category: row[3] || '',         // Column D - Category  
           sub_category: row[2] || '',     // Column C - Sub Category
           address: row[3] || '',          // Column D - Full Address
           contact_person: row[4] || '',   // Column E - Contact Person Name

@@ -15,7 +15,7 @@ const CACHE_TTL = 30000; // 30 seconds
 async function fetchFromGoogleSheets(range: string, useCache = true) {
   const cacheKey = `sheets_${range}`;
   const now = Date.now();
-  
+
   if (useCache && cache.has(cacheKey)) {
     const cached = cache.get(cacheKey)!;
     if (now - cached.timestamp < CACHE_TTL) {
@@ -26,11 +26,11 @@ async function fetchFromGoogleSheets(range: string, useCache = true) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
   const response = await fetch(url);
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(`Google Sheets API error: ${data.error?.message || 'Unknown error'}`);
   }
-  
+
   cache.set(cacheKey, { data, timestamp: now });
   return data;
 }
@@ -40,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/merchants", async (req, res) => {
     try {
       const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE);
-      
+
       if (!responseData.values || responseData.values.length === 0) {
         return res.json([]);
       }
@@ -48,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const merchants = responseData.values.slice(1).map((row: string[], index: number) => ({
         id: `merchant_${index}`,
         business_name: row[0] || '',
-        category: row[1] || '',
+        category: row[3] || '',
         sub_category: row[2] || '',
         address: row[3] || '',
         contact_person: row[4] || '',
@@ -69,16 +69,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/volunteers", async (req, res) => {
     try {
       const responseData = await fetchFromGoogleSheets(VOLUNTEERS_RANGE);
-      
+
       if (!responseData.values || responseData.values.length === 0) {
         return res.json([]);
       }
-      
+
       const volunteerNames = Array.from(new Set(responseData.values
         .slice(1)
-        .map((row: string[]) => row[0]) 
+        .map((row: string[]) => row[0])
         .filter((name: string) => name && name.trim() !== '')));
-      
+
       const volunteers = volunteerNames.map((name: string, index: number) => ({
         id: `volunteer_${index}`,
         full_name: name,
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/assignments", async (req, res) => {
     try {
       const { merchantName, volunteerName } = req.body;
-      
+
       if (!merchantName || !volunteerName) {
         return res.status(400).json({ message: "Merchant name and volunteer name are required" });
       }
@@ -109,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (responseData.values) {
         const currentAssignments = responseData.values.slice(1)
           .filter((row: string[]) => row[11] === volunteerName).length;
-        
+
         if (currentAssignments >= 3) {
           return res.status(400).json({ message: "Volunteer already has maximum of 3 assignments" });
         }
@@ -141,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const volunteerName = req.params.volunteerName;
       const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE);
-      
+
       if (!responseData.values || responseData.values.length === 0) {
         return res.json([]);
       }
@@ -151,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .map((row: string[], index: number) => ({
           id: `merchant_${index}`,
           business_name: row[0] || '',
-          category: row[1] || '',
+          category: row[3] || '',
           sub_category: row[2] || '',
           address: row[3] || '',
           contact_person: row[4] || '',
