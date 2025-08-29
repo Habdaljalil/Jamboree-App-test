@@ -35,6 +35,33 @@ async function fetchFromGoogleSheets(range: string, useCache = true) {
   return data;
 }
 
+function formatAddress(street: string, streetMaster: string, number: string, town: string, state: string): string {
+  const parts: string[] = [];
+
+  // Use street number if available
+  if (number && number.trim()) {
+    parts.push(number.trim());
+  }
+
+  // Use the main street name (prefer streetMaster if available, otherwise use street)
+  const streetName = (streetMaster && streetMaster.trim()) || (street && street.trim());
+  if (streetName) {
+    parts.push(streetName);
+  }
+
+  // Add town and state
+  if (town && town.trim()) {
+    const townPart = town.trim();
+    if (state && state.trim()) {
+      parts.push(`${townPart}, ${state.trim()}`);
+    } else {
+      parts.push(townPart);
+    }
+  }
+
+  return parts.join(' ');
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Merchants endpoints
   app.get("/api/merchants", async (req, res) => {
@@ -50,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         business_name: row[0] || '',
         category: row[7] || '', // Column H - Index Category
         sub_category: '', // Will be set dynamically in UI
-        address: `${row[1] || ''} ${row[2] || ''} ${row[3] || ''} ${row[4] || ''} ${row[5] || ''} ${row[6] || ''}`.trim(),
+        address: formatAddress(row[1] || '', row[2] || '', row[3] || '', row[4] || '', row[5] || ''), // Column B-F for address
         contact_person: row[10] || '', // Column K - Advertiser Contact
         phone: row[8] || '', // Column I - Merchant Phone
         email: row[9] || '', // Column J - Advertiser E-mail
