@@ -13,7 +13,7 @@ export default function MerchantSelection() {
   const [searchText, setSearchText] = useState("");
   const [assignmentFilter, setAssignmentFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [subCategoryFilter, setSubCategoryFilter] = useState("all");
+  
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const [visibleCount, setVisibleCount] = useState(30);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -66,40 +66,11 @@ export default function MerchantSelection() {
     // Category filter
     const matchesCategory = categoryFilter === 'all' || merchant.category === categoryFilter;
 
-    // Sub-category filter
-    const matchesSubCategory = subCategoryFilter === 'all' || merchant.sub_category === subCategoryFilter;
-
-    return matchesSearch && matchesAssignment && matchesCategory && matchesSubCategory;
+    return matchesSearch && matchesAssignment && matchesCategory;
   });
 
-  // Get unique categories and sub-categories
+  // Get unique categories
   const categories = Array.from(new Set(merchants.map(m => m.category).filter(cat => cat && cat.trim() !== '')));
-  
-  // Dynamic sub-categories based on category
-  const getSubCategoriesForCategory = (category: string): string[] => {
-    const categorySubMap: Record<string, string[]> = {
-      'Restaurants': ['Italian', 'Diner', 'Fast Food', 'Coffee Shop', 'Pizza', 'Asian', 'Mexican', 'Bakery'],
-      'Personal': ['Hair Salon', 'Spa', 'Fitness', 'Beauty', 'Wellness', 'Personal Care'],
-      'Community Organizations': ['Non-profit', 'Religious', 'Educational', 'Sports', 'Youth Programs'],
-      'Retail': ['Clothing', 'Electronics', 'Home & Garden', 'Books', 'Gifts', 'Sporting Goods'],
-      'Professional Services': ['Legal', 'Medical', 'Financial', 'Real Estate', 'Insurance', 'Consulting'],
-      'Automotive': ['Car Dealer', 'Auto Repair', 'Gas Station', 'Car Wash', 'Parts Store'],
-      'Entertainment': ['Theater', 'Music', 'Recreation', 'Events', 'Gaming'],
-      'Home Services': ['Plumbing', 'Electrical', 'HVAC', 'Cleaning', 'Landscaping', 'Construction']
-    };
-    return categorySubMap[category] || [];
-  };
-  
-  const subCategories = categoryFilter === 'all' 
-    ? [] 
-    : getSubCategoriesForCategory(categoryFilter);
-
-  // Update sub-category filter when category changes
-  useEffect(() => {
-    if (categoryFilter !== 'all') {
-      setSubCategoryFilter('all');
-    }
-  }, [categoryFilter]);
 
   const handleAssignMerchant = async (merchantName: string, volunteerName: string) => {
     return new Promise((resolve, reject) => {
@@ -162,9 +133,6 @@ export default function MerchantSelection() {
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}
         categories={categories}
-        subCategoryFilter={subCategoryFilter}
-        setSubCategoryFilter={setSubCategoryFilter}
-        subCategories={subCategories}
       />
 
       {/* Results Counter */}

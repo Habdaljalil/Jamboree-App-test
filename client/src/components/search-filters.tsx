@@ -9,9 +9,6 @@ interface SearchFiltersProps {
   categoryFilter: string;
   setCategoryFilter: (filter: string) => void;
   categories: string[];
-  subCategoryFilter: string;
-  setSubCategoryFilter: (filter: string) => void;
-  subCategories: string[];
 }
 
 export default function SearchFilters({
@@ -22,9 +19,6 @@ export default function SearchFilters({
   categoryFilter,
   setCategoryFilter,
   categories,
-  subCategoryFilter,
-  setSubCategoryFilter,
-  subCategories,
 }: SearchFiltersProps) {
   return (
     <div className="bg-card border border-border rounded-lg p-6 mb-6">
@@ -42,7 +36,7 @@ export default function SearchFilters({
       </div>
       
       {/* Filter Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-muted-foreground mb-2">
             Assignment Status
@@ -66,33 +60,12 @@ export default function SearchFilters({
           <select 
             className="input-apple" 
             value={categoryFilter} 
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setSubCategoryFilter("all");
-            }}
+            onChange={(e) => setCategoryFilter(e.target.value)}
             data-testid="select-category-filter"
           >
             <option value="all">All Categories</option>
             {categories.map(category => (
               <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Sub-Category
-          </label>
-          <select 
-            className="input-apple"
-            value={subCategoryFilter} 
-            onChange={(e) => setSubCategoryFilter(e.target.value)} 
-            disabled={categoryFilter === 'all' && subCategories.length === 0}
-            data-testid="select-subcategory-filter"
-          >
-            <option value="all">All Sub-Categories</option>
-            {subCategories.map(subCategory => (
-              <option key={subCategory} value={subCategory}>{subCategory}</option>
             ))}
           </select>
         </div>
