@@ -76,13 +76,13 @@ export class GoogleSheetsService {
           return {
             id: `merchant_${index}`,
             business_name: row[0] || "", // Column A - Business Name
-            category: row[1] || "", // Column D - Category
-            sub_category: row[2] || "", // Column C - Sub Category
-            address: row[3] || "", // Column D - Full Address
-            contact_person: row[4] || "", // Column E - Contact Person Name
-            phone: row[5] || "", // Column F - Phone Number
-            email: row[6] || "", // Column G - Email Address
-            status: row[7] || "active", // Column H - Status
+            category: row[7] || "", // Column H - Index Category
+            sub_category: row[2] || "", // Column C - Address street master (using as sub-category)
+            address: `${row[1] || ""} ${row[2] || ""} ${row[3] || ""} ${row[4] || ""} ${row[5] || ""} ${row[6] || ""}`.trim(), // Combined address
+            contact_person: row[10] || "", // Column K - Advertiser Contact
+            phone: row[8] || "", // Column I - Merchant Phone
+            email: row[9] || "", // Column J - Advertiser E-mail
+            status: "active",
             assigned_to: row[11] || null, // Column L - Cast Who Sold Ad
           };
         })
