@@ -49,14 +49,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: `merchant_${index}`,
         business_name: row[0] || '',
         category: row[7] || '', // Column H - Index Category
-        sub_category: row[2] || '', // Column C - Address street master
+        sub_category: '', // Will be set dynamically in UI
         address: `${row[1] || ''} ${row[2] || ''} ${row[3] || ''} ${row[4] || ''} ${row[5] || ''} ${row[6] || ''}`.trim(),
         contact_person: row[10] || '', // Column K - Advertiser Contact
         phone: row[8] || '', // Column I - Merchant Phone
         email: row[9] || '', // Column J - Advertiser E-mail
         status: 'active',
         assigned_to: row[11] || null, // Column L - Cast Who Sold Ad
-      })).filter((m: any) => m.business_name.trim() !== '');
+      })).filter((m: any) => m.business_name.trim() !== '' && m.category.trim() !== '');
 
       res.json(merchants);
     } catch (error) {

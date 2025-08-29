@@ -77,7 +77,7 @@ export class GoogleSheetsService {
             id: `merchant_${index}`,
             business_name: row[0] || "", // Column A - Business Name
             category: row[7] || "", // Column H - Index Category
-            sub_category: row[2] || "", // Column C - Address street master (using as sub-category)
+            sub_category: "", // Will be set dynamically in UI
             address: `${row[1] || ""} ${row[2] || ""} ${row[3] || ""} ${row[4] || ""} ${row[5] || ""} ${row[6] || ""}`.trim(), // Combined address
             contact_person: row[10] || "", // Column K - Advertiser Contact
             phone: row[8] || "", // Column I - Merchant Phone

@@ -73,10 +73,26 @@ export default function MerchantSelection() {
   });
 
   // Get unique categories and sub-categories
-  const categories = Array.from(new Set(merchants.map(m => m.category)));
+  const categories = Array.from(new Set(merchants.map(m => m.category).filter(cat => cat && cat.trim() !== '')));
+  
+  // Dynamic sub-categories based on category
+  const getSubCategoriesForCategory = (category: string): string[] => {
+    const categorySubMap: Record<string, string[]> = {
+      'Restaurants': ['Italian', 'Diner', 'Fast Food', 'Coffee Shop', 'Pizza', 'Asian', 'Mexican', 'Bakery'],
+      'Personal': ['Hair Salon', 'Spa', 'Fitness', 'Beauty', 'Wellness', 'Personal Care'],
+      'Community Organizations': ['Non-profit', 'Religious', 'Educational', 'Sports', 'Youth Programs'],
+      'Retail': ['Clothing', 'Electronics', 'Home & Garden', 'Books', 'Gifts', 'Sporting Goods'],
+      'Professional Services': ['Legal', 'Medical', 'Financial', 'Real Estate', 'Insurance', 'Consulting'],
+      'Automotive': ['Car Dealer', 'Auto Repair', 'Gas Station', 'Car Wash', 'Parts Store'],
+      'Entertainment': ['Theater', 'Music', 'Recreation', 'Events', 'Gaming'],
+      'Home Services': ['Plumbing', 'Electrical', 'HVAC', 'Cleaning', 'Landscaping', 'Construction']
+    };
+    return categorySubMap[category] || [];
+  };
+  
   const subCategories = categoryFilter === 'all' 
-    ? Array.from(new Set(merchants.map(m => m.sub_category)))
-    : Array.from(new Set(merchants.filter(m => m.category === categoryFilter).map(m => m.sub_category)));
+    ? [] 
+    : getSubCategoriesForCategory(categoryFilter);
 
   // Update sub-category filter when category changes
   useEffect(() => {
