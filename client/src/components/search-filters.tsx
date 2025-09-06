@@ -21,7 +21,7 @@ export default function SearchFilters({
   categories,
 }: SearchFiltersProps) {
   return (
-    <div className="bg-card border border-border rounded-lg p-6 mb-6">
+    <div className="bg-card border border-border rounded-lg p-6">
       {/* Search Input */}
       <div className="relative mb-6">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />

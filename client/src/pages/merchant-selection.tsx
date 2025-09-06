@@ -125,15 +125,17 @@ export default function MerchantSelection() {
 
 
       {/* Search and Filters */}
-      <SearchFilters
-        searchText={searchText}
-        setSearchText={setSearchText}
-        assignmentFilter={assignmentFilter}
-        setAssignmentFilter={setAssignmentFilter}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        categories={categories}
-      />
+      <div className="max-w-none mb-6">
+        <SearchFilters
+          searchText={searchText}
+          setSearchText={setSearchText}
+          assignmentFilter={assignmentFilter}
+          setAssignmentFilter={setAssignmentFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          categories={categories}
+        />
+      </div>
 
       {/* Results Counter */}
       <div className="text-center mb-6">
