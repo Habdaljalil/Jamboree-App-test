@@ -13,7 +13,7 @@ export default function MerchantSelection() {
   const [searchText, setSearchText] = useState("");
   const [assignmentFilter, setAssignmentFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  
+
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const [visibleCount, setVisibleCount] = useState(30);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -110,7 +110,7 @@ export default function MerchantSelection() {
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Browse and assign merchants for ad sponsorships in the Ridgewood Jamboree program.
         </p>
-        
+
         {/* Manual Refresh Button */}
         <button 
           className="btn-secondary mt-4" 
