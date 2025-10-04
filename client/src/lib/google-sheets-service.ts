@@ -1,12 +1,12 @@
 import { type Merchant, type Volunteer } from "@shared/schema";
 
 // Google Sheets Service Configuration
-const SHEET_ID = "1KCizb55EhOFAqmN-7SlBaUp0qHNJRZwFWhvG_ITno0w";
-const API_KEY = "AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc";
-const MERCHANTS_RANGE = "Sheet1!A:L"; // Merchant info in columns A to L
-const VOLUNTEERS_RANGE = "Sheet1!L:L"; // People list is in column L
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycby43gvbpZK9-5jRyrV1z1XJ4KG_MudXk0ry1IM158WrBPcF4WAfJjJNvTwpFB8DR_wV/exec";
+
+const SHEET_ID = import.meta.env.VITE_SHEET_ID;
+const API_KEY = import.meta.env.VITE_API_KEY;
+const MERCHANTS_RANGE = import.meta.env.VITE_MERCHANTS_RANGE; // Merchant info in columns A to L
+const VOLUNTEERS_RANGE = import.meta.env.VITE_VOLUNTEERS_RANGE; // People list is in column L
+const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL;
 
 // Cache implementation for better performance
 class SimpleCache {
@@ -38,20 +38,27 @@ const cache = new SimpleCache();
 
 // Google Sheets Service Class
 export class GoogleSheetsService {
-  private formatAddress(street: string, streetMaster: string, number: string, town: string, state: string): string {
+  private formatAddress(
+    street: string,
+    streetMaster: string,
+    number: string,
+    town: string,
+    state: string,
+  ): string {
     const parts: string[] = [];
-    
+
     // Use street number if available
     if (number && number.trim()) {
       parts.push(number.trim());
     }
-    
+
     // Use the main street name (prefer streetMaster if available, otherwise use street)
-    const streetName = (streetMaster && streetMaster.trim()) || (street && street.trim());
+    const streetName =
+      (streetMaster && streetMaster.trim()) || (street && street.trim());
     if (streetName) {
       parts.push(streetName);
     }
-    
+
     // Add town and state
     if (town && town.trim()) {
       const townPart = town.trim();
@@ -61,8 +68,8 @@ export class GoogleSheetsService {
         parts.push(townPart);
       }
     }
-    
-    return parts.join(' ');
+
+    return parts.join(" ");
   }
   async fetchMerchants(useCache = true): Promise<Merchant[]> {
     const cacheKey = "merchants";
