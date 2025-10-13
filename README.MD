@@ -9,6 +9,8 @@ Jamboree Connect(name subject to change) is a platform that allows members of Ri
 1. Docker, for building the application
 2. Google Account for deploying to Google Cloud(optional)
 3. Linux-based operating system (or Mac) with complete access
+4. Git, github
+5. Google CLI
 ### Instructions
 1. Clone the Github repo with:
    ```bash
