@@ -12,7 +12,7 @@ Jamboree Connect(name subject to change) is a platform that allows members of Ri
 4. Git, github
 5. Google CLI
 ### Pre-install Instructions
-1. To setup the Docker pre-install, run the commands:
+1. To set up the Docker pre-install, run the commands:
 ```bash
 # Add Docker's official GPG key:
 sudo apt-get update
