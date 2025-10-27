@@ -170,13 +170,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .slice(1)
           .filter((row: string[]) => row[11] === volunteerName).length;
 
-        if (currentAssignments >= MAX_ASSIGNMENTS_PER_VOLUNTEER) {
-          return res
-            .status(400)
-            .json({
-              message: "Volunteer already has maximum of 3 assignments",
-            });
-        }
+        // if (currentAssignments >= MAX_ASSIGNMENTS_PER_VOLUNTEER) {
+        //   return res
+        //     .status(400)
+        //     .json({
+        //       message: "Volunteer already has maximum of 3 assignments",
+        //     });
+        // }
       }
 
       // Call the Apps Script endpoint to update the sheet

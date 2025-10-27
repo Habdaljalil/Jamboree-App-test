@@ -186,11 +186,11 @@ export class GoogleSheetsService {
       const currentAssignments = merchants.filter(
         (m) => m.assigned_to === volunteerName,
       ).length;
-      if (currentAssignments >= 3) {
-        throw new Error(
-          `${volunteerName} already has 3 assignments. Maximum limit reached.`,
-        );
-      }
+      // if (currentAssignments >= 3) {
+      //   throw new Error(
+      //     `${volunteerName} already has 3 assignments. Maximum limit reached.`,
+      //   );
+      // }
 
       // Call the Apps Script endpoint
       const response = await fetch(APPS_SCRIPT_URL, {

@@ -14,7 +14,6 @@ function Router() {
       <Switch>
         <Route path="/" component={MerchantSelection} />
         <Route path="/merchant-selection" component={MerchantSelection} />
-        <Route path="/my-assignments" component={MyAssignments} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

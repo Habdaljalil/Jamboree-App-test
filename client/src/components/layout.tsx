@@ -8,11 +8,6 @@ const navigationItems = [
     url: "/merchant-selection",
     icon: Building2,
   },
-  {
-    title: "My Assignments", 
-    url: "/my-assignments",
-    icon: UserCheck,
-  },
 ];
 
 interface LayoutProps {
