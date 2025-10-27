@@ -59,11 +59,11 @@ sudo apt-get install google-cloud-cli
    ```
 2. Build the application with:
    ```bash
-    sudo docker build . -t jamboree-app
+    sudo docker build . -t jamboree-app --no-cache
    ```
 3. Test the application locally with:
    ```bash
-    sudo docker run jamboree-app
+    sudo docker run -p 8080:8080 jamboree-app
    ```
 Once you have seen that the local version works, proceed to deploy to Google Cloud
 ### Google Cloud Deployment
