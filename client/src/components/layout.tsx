@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Building2, UserCheck, Sun, Moon, Menu } from "lucide-react";
+import { Building2, UserCheck, Sun, Moon, Menu, PlusCircle} from "lucide-react";
+import { title } from "process";
 
 const navigationItems = [
   {
@@ -8,6 +9,11 @@ const navigationItems = [
     url: "/merchant-selection",
     icon: Building2,
   },
+  {
+    title: "Merchant Proposal",
+    url: "/merchant-proposal",
+    icon: PlusCircle,
+  }
 ];
 
 interface LayoutProps {
@@ -52,7 +58,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-foreground">Ridgewood Jamboree</h1>
+              <a className="text-xl font-bold text-foreground nav-link" href="/">Jamboree Connect</a>
             </div>
 
             {/* Desktop Navigation */}

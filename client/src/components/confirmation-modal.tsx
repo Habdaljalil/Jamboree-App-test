@@ -89,10 +89,6 @@ export default function ConfirmationModal({
               </p>
             )}
           </div>
-
-          <div className="text-xs text-muted-foreground bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-            <p><strong>Note:</strong> This action will update the Google Sheet and cannot be easily undone. The merchant will be assigned to this volunteer.</p>
-          </div>
         </div>
 
         {/* Actions */}

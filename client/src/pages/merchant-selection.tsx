@@ -194,6 +194,7 @@ export default function MerchantSelection() {
           </button>
         </div>
       )}
+      
 
       {/* Assignment Modal */}
       {selectedMerchant && (

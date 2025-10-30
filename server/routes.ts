@@ -4,8 +4,8 @@ import { createServer, type Server } from "http";
 // Import Google Sheets Service
 const SHEET_ID = "1KCizb55EhOFAqmN-7SlBaUp0qHNJRZwFWhvG_ITno0w";
 const API_KEY = "AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc";
-const MERCHANTS_RANGE = "Sheet1!A:L";
-const VOLUNTEERS_RANGE = "Sheet1!L:L";
+const MERCHANTS_RANGE = "Sheet1!A:M"; // I updated this to include the new column
+const VOLUNTEERS_RANGE = "Sheet1!M:M"; // I shifted this to the new volunteers' column
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycby43gvbpZK9-5jRyrV1z1XJ4KG_MudXk0ry1IM158WrBPcF4WAfJjJNvTwpFB8DR_wV/exec";
 const MAX_ASSIGNMENTS_PER_VOLUNTEER = 3;
@@ -101,7 +101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           phone: row[8] || "", // Column I - Merchant Phone
           email: row[9] || "", // Column J - Advertiser E-mail
           status: "active",
-          assigned_to: row[11] || null, // Column L - Cast Who Sold Ad
+          previous_ad_size: row[11] || null, // Column L - Previous ad size
+          assigned_to: row[12] || null, // Column M - cast who sold the ad
         }))
         .filter(
           (m: any) => m.business_name.trim() !== "" && m.category.trim() !== "",

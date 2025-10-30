@@ -7,30 +7,30 @@
 :root {
   /* Apple Design System Variables */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  
+
   /* Light mode colors */
-  --background: hsl(210, 40%, 98%);
-  --foreground: hsl(222.2, 84%, 4.9%);
+  --background: hsl(0, 0%, 100%);            /* white */
+  --foreground: hsl(348, 80%, 23%);           /* maroon-ish (#800000 approx) */
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222.2, 84%, 4.9%);
+  --card-foreground: hsl(348, 80%, 23%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(222.2, 84%, 4.9%);
-  --primary: hsl(142, 76%, 36%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --success: hsl(142, 76%, 36%);
-  --success-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(210, 40%, 96%);
-  --secondary-foreground: hsl(222.2, 47%, 11%);
-  --muted: hsl(210, 40%, 96%);
-  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
-  --accent: hsl(210, 40%, 96%);
-  --accent-foreground: hsl(222.2, 47%, 11%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(214.3, 31.8%, 91.4%);
-  --input: hsl(214.3, 31.8%, 91.4%);
-  --ring: hsl(212, 97%, 57%);
-  
+  --popover-foreground: hsl(348, 80%, 23%);
+  --primary: hsl(348, 80%, 23%);               /* main maroon */
+  --primary-foreground: hsl(0, 0%, 100%);      /* white text on maroon */
+  --success: hsl(150, 65%, 23%);              /* green for available badges */
+  --success-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 0%);                 /* black for secondary background */
+  --secondary-foreground: hsl(0, 0%, 100%);    /* white text on black */
+  --muted: hsl(0, 0%, 95%);                   /* almost white for muted background */
+  --muted-foreground: hsl(0, 0%, 30%);        /* dark grey text */
+  --accent: hsl(348, 80%, 23%);               /* use maroon for accent too */
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(348, 80%, 23%);           /* using maroon for destructive as well, or adjust to red if needed */
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 80%);                  /* light grey border */
+  --input: hsl(0, 0%, 100%);
+  --ring: hsl(348, 80%, 23%);
+
   /* Design tokens */
   --radius: 12px;
   --blur: 20px;
@@ -38,12 +38,12 @@
   --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  
+
   /* Spacing and layout */
   --max-w: 1200px;
   --gutter: clamp(16px, 3.5vw, 32px);
   --section-y: clamp(40px, 10vw, 120px);
-  
+
   /* Animation */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-fast: 160ms;
@@ -52,27 +52,90 @@
 }
 
 .dark {
-  /* Dark mode colors */
-  --background: hsl(222.2, 84%, 4.9%);
-  --foreground: hsl(210, 40%, 98%);
-  --card: hsl(222.2, 84%, 4.9%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --popover: hsl(222.2, 84%, 4.9%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --primary: hsl(210, 80%, 55%);
-  --primary-foreground: hsl(222.2, 47%, 11%);
-  --secondary: hsl(217.2, 32.6%, 17.5%);
-  --secondary-foreground: hsl(210, 40%, 98%);
-  --muted: hsl(217.2, 32.6%, 17.5%);
-  --muted-foreground: hsl(215, 20.2%, 65.1%);
-  --accent: hsl(217.2, 32.6%, 17.5%);
-  --accent-foreground: hsl(210, 40%, 98%);
+  /* Dark mode colors - improved Ridgewood Jamboree style */
+  --background: hsl(0, 0%, 7%);               /* almost black, subtle warm tone */
+  --foreground: hsl(0, 0%, 98%);              /* near-white text for readability */
+  
+  --card: hsl(0, 0%, 12%);                    /* slightly lighter card background */
+  --card-foreground: hsl(0, 0%, 98%);
+
+  --popover: hsl(0, 0%, 12%);
+  --popover-foreground: hsl(0, 0%, 98%);
+
+  --primary: hsl(348, 80%, 23%);              /* bright maroon accent for buttons/links */
+  --primary-foreground: hsl(0, 0%, 100%);
+
+  --secondary: hsl(0, 0%, 18%);               /* dark gray for secondary surfaces */
+  --secondary-foreground: hsl(0, 0%, 95%);
+
+  --muted: hsl(0, 0%, 22%);                   /* medium gray for muted backgrounds */
+  --muted-foreground: hsl(0, 0%, 80%);
+
+  --accent: hsl(348, 80%, 23%);               /* same as primary for consistency */
+  --accent-foreground: hsl(0, 0%, 100%);
+
+  --success: hsl(150, 65%, 23%);              /* green for available badges */
+  --success-foreground: hsl(0, 0%, 100%);
+
   --destructive: hsl(0, 62.8%, 55.6%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(217.2, 32.6%, 17.5%);
-  --input: hsl(217.2, 32.6%, 17.5%);
-  --ring: hsl(210, 80%, 55%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+
+  --border: hsl(0, 0%, 25%);                  /* subtle mid-gray border */
+  --input: hsl(0, 0%, 18%);
+  --ring: hsl(348, 80%, 23%);
+
+  /* Adjusted shadows for dark theme */
+  --shadow-xs: 0 1px 2px rgba(255, 255, 255, 0.05);
+  --shadow-sm: 0 4px 6px rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 10px 15px rgba(255, 255, 255, 0.08);
+  --shadow-lg: 0 25px 50px rgba(255, 255, 255, 0.08);
 }
+
+.theme-toggle {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.theme-toggle:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.dark .theme-toggle {
+  background-color: var(--card);
+  border-color: var(--border);
+  color: var(--primary);
+}
+
+.dark .theme-toggle:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.nav-button {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+.dark .nav-button {
+  color: var(--primary);
+}
+
+.dark .nav-button:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
 
 @layer base {
   * {
@@ -132,7 +195,7 @@
   }
 
   .btn-apple:hover {
-    background: hsl(142, 76%, 30%);
+    background: hsl(348, 80%, 20%);  /* slightly darker maroon hover */
     transform: translateY(-1px);
   }
 
@@ -164,7 +227,7 @@
   .input-apple:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
   }
 
   /* Badge Components */
@@ -179,9 +242,9 @@
   }
 
   .badge-assigned {
-    background: rgba(168, 85, 247, 0.1);
-    color: rgb(168, 85, 247);
-    border: 1px solid rgba(168, 85, 247, 0.2);
+    background: rgba(128, 0, 0, 0.1);
+    color: rgb(128, 0, 0);
+    border: 1px solid rgba(128, 0, 0, 0.2);
   }
 
   .badge-category {
@@ -219,13 +282,13 @@
   }
 
   @keyframes fadeIn {
-    from { 
-      opacity: 0; 
-      transform: translateY(10px); 
+    from {
+      opacity: 0;
+      transform: translateY(10px);
     }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -234,13 +297,13 @@
   }
 
   @keyframes slideUp {
-    from { 
-      opacity: 0; 
-      transform: translateY(20px); 
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -261,7 +324,7 @@
   }
 
   .nav-link.active:hover {
-    background: hsl(142, 76%, 30%) !important;
+    background: hsl(348, 80%, 20%) !important;
   }
 
   .theme-toggle {
@@ -281,7 +344,7 @@
   .desktop-nav {
     display: none;
   }
-  
+
   .mobile-menu {
     display: block;
   }
@@ -324,7 +387,7 @@
   .desktop-nav {
     display: flex;
   }
-  
+
   .mobile-menu {
     display: none;
   }

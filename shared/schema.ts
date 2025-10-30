@@ -14,6 +14,11 @@ export const merchants = pgTable("merchants", {
   email: text("email").notNull(),
   status: text("status").notNull().default("active"),
   assigned_to: text("assigned_to"),
+  previous_ad_size: text("previous_ad_size").default("did not purchase ad last year"),
+  /*
+  I added previous_ad_size; if there is no data, it will default to 
+  `did not purchase ad last year`.
+  */
 });
 
 export const volunteers = pgTable("volunteers", {
