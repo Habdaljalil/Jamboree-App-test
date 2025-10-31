@@ -8,40 +8,14 @@ Jamboree Connect(name subject to change) is a platform that allows members of Ri
 ### Requirements
 1. Docker(version 24.0.7), for building the application
 2. Google Account for deploying to Google Cloud(optional)
-3. Ubuntu, or any of its sub-distros that utilize Ubuntu version 22.04 or higher.
+3. Ubuntu version >= 22.04 with root privileges
 4. Git, github
 5. Google CLI
 ### Pre-install Instructions
-1. To set up the Docker pre-install, run the commands:
-```bash
-# Add Docker's official GPG key:
-sudo apt-get update
-
-sudo apt-get install ca-certificates curl
-
-sudo install -m 0755 -d /etc/apt/keyrings
-
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-sudo apt-get update
-```
-2. To install the desired version of Docker, version 24.0.7, run:
-```bash
-VERSION_STRING=5:24.0.7-0ubuntu2~ubuntu.22.04~jammy
-
-sudo apt-get install docker-ce=$VERSION_STRING docker-ce-cli=$VERSION_STRING containerd.io docker-buildx-plugin docker-compose-plugin
-```
-3. To install the Google cloud CLI, run:
+1. To install the Google cloud CLI, run:
 ```bash
 sudo apt-get update
+
 sudo apt-get install apt-transport-https ca-certificates gnupg curl -y
 
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
@@ -53,18 +27,27 @@ sudo apt-get update
 sudo apt-get install google-cloud-cli
 ```
 ### Instructions
-1. Clone the Github repo with:
+1. Clone the Github repository and go into it with:
    ```bash
     gh repo clone https://github.com/Habdaljalil/Jamboree-App-test
+
+    cd Jamboree-App-test
    ```
-2. Build the application with:
+2. Install docker using the provided script:
+   ```bash
+      sudo chmod +x dockerinstall.sh
+
+      ./dockerinstall.sh
+   ```
+3. Build the application with:
    ```bash
     sudo docker build . -t jamboree-app --no-cache
    ```
-3. Test the application locally with:
+4. Test the application locally with:
    ```bash
     sudo docker run -p 8080:8080 jamboree-app
    ```
+
 Once you have seen that the local version works, proceed to deploy to Google Cloud
 ### Google Cloud Deployment
 1. Make a .env file with the following format and fill in the values.
