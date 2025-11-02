@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes"; // your routes.ts
+import { DotenvConfigOptions } from "dotenv";
 
 // Enable dotenv only in dev
 if (process.env.NODE_ENV !== "production") {

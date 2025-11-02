@@ -1,14 +1,21 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-
+import { string } from "zod";
+import { configDotenv, DotenvConfigOptions } from "dotenv";
 // Import Google Sheets Service
-const SHEET_ID = "1KCizb55EhOFAqmN-7SlBaUp0qHNJRZwFWhvG_ITno0w";
-const API_KEY = "AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc";
-const MERCHANTS_RANGE = "Sheet1!A:M"; // I updated this to include the new column
-const VOLUNTEERS_RANGE = "Sheet1!M:M"; // I shifted this to the new volunteers' column
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycby43gvbpZK9-5jRyrV1z1XJ4KG_MudXk0ry1IM158WrBPcF4WAfJjJNvTwpFB8DR_wV/exec";
-const MAX_ASSIGNMENTS_PER_VOLUNTEER = 3;
+// const SHEET_ID = "1KCizb55EhOFAqmN-7SlBaUp0qHNJRZwFWhvG_ITno0w";
+// const API_KEY = "AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc";
+// const MERCHANTS_RANGE = "Sheet1!A:M"; // I updated this to include the new column
+// const VOLUNTEERS_RANGE = "Sheet1!M:M"; // I shifted this to the new volunteers' column
+// const APPS_SCRIPT_URL =
+//   "https://script.google.com/macros/s/AKfycby43gvbpZK9-5jRyrV1z1XJ4KG_MudXk0ry1IM158WrBPcF4WAfJjJNvTwpFB8DR_wV/exec";
+// const MAX_ASSIGNMENTS_PER_VOLUNTEER = 3;
+configDotenv();
+const SHEET_ID = process.env.VITE_SHEET_ID;
+const API_KEY = process.env.VITE_API_KEY;
+const MERCHANTS_RANGE = process.env.VITE_MERCHANTS_RANGE; // Merchant info in columns A to L
+const VOLUNTEERS_RANGE = process.env.VITE_VOLUNTEERS_RANGE; // People list is in column L
+const APPS_SCRIPT_URL = process.env.VITE_APPS_SCRIPT_URL;
 
 // Cache for Google Sheets data
 const cache = new Map<string, { data: any; timestamp: number }>();
