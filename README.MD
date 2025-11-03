@@ -33,7 +33,28 @@ sudo apt-get install google-cloud-cli
 
     cd Jamboree-App-test
    ```
+<<<<<<< HEAD
 2.  Make a .env file with the following format and fill in the values.
+=======
+2. Install docker using the provided script:
+   ```bash
+      sudo chmod +x dockerinstall.sh
+
+      ./dockerinstall.sh
+   ```
+3. Build the application with:
+   ```bash
+    sudo docker build . -t jamboree-app --no-cache
+   ```
+4. Test the application locally with:
+   ```bash
+    sudo docker run -p 8080:8080 --env-file .env jamboree-app
+   ```
+
+Once you have seen that the local version works, proceed to deploy to Google Cloud
+### Google Cloud Deployment
+1. Make a .env file with the following format and fill in the values.
+>>>>>>> 277b7a9f9f8c5ae0682aeb2501e6556a43d02acc
    ```.env
     VITE_SHEET_ID=
     VITE_API_KEY=
