@@ -1,0 +1,13 @@
+# docker-compose.yml
+services:
+  jamboree-app:
+    build:
+      context: .
+      args:
+        VITE_SHEET_ID: ${VITE_SHEET_ID}
+        VITE_API_KEY: ${VITE_API_KEY}
+        VITE_MERCHANTS_RANGE: ${VITE_MERCHANTS_RANGE}
+        VITE_VOLUNTEERS_RANGE: ${VITE_VOLUNTEERS_RANGE}
+        VITE_APPS_SCRIPT_URL: ${VITE_APPS_SCRIPT_URL}
+    # This line specifies the name and tag for the built image
+    image: jamboree-app:latest 

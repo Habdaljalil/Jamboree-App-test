@@ -1,6 +1,12 @@
 # Stage 1: Build
 FROM node:20 AS builder
 
+ARG VITE_SHEET_ID
+ARG VITE_API_KEY
+ARG VITE_MERCHANTS_RANGE
+ARG VITE_VOLUNTEERS_RANGE
+ARG VITE_APPS_SCRIPT_URL
+
 WORKDIR /app
 
 # Install deps first for caching
