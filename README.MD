@@ -60,7 +60,7 @@ sudo apt-get install google-cloud-cli
    ```
 6. Test the application locally with:
    ```bash
-    sudo docker run -p 8080:8080 jamboree-app
+    sudo docker run -p 8080:8080 --env-file .env jamboree-app
    ```
 
 Once you have seen that the local version works, proceed to deploy to Google Cloud
@@ -70,13 +70,33 @@ Once you have seen that the local version works, proceed to deploy to Google Clo
 2. Create a new project(press ctrl + o) and name it(i.e Jamboree production)
 3. Run the command to connect to Google Cloud and create an instance(Google will ask you to sign in with your account and enable some services):
     ```bash
-    gcloud run deploy ridgewood-jamboree --source . --region us-east4 --allow-unauthenticated --set-env-vars VITE_SHEET_ID=$VITE_SHEET_ID,VITE_API_KEY=$VITE_API_KEY,VITE_MERCHANTS_RANGE=$VITE_MERCHANTS_RANGE,VITE_VOLUNTEERS_RANGE=$VITE_VOLUNTEERS_RANGE,VITE_APPS_SCRIPT_URL=$VITE_APPS_SCRIPT_URL
+    sudo chmod +x google-cloud-deploy.sh
+    
+    ./google-cloud-deploy.sh
     ```
+#### Safety: Make sure that there is no `jamboree` Artifact Registry, otherwise the script will fail.
 #### Note: The token (ridgewood-jamboree) is the name of the cloud instance. To view it, press `.`, then click Cloud Run --> overview
 4. This operation may take up to 90 seconds; in Cloud Run Overview, click on the name of the instance(ridgewood-jamboree), then you will see the URL and the source code, which you can edit.
 ## Usage
 1. Google allows you to edit and redeploy the code, which is needed to update the environment variables to point to the correct Google Sheet, API key, *etc*
 2. Although optional, the folders `attached_assets` and `.local` can be removed
+### Explanation of Environment Variable Format:
+```.env
+    VITE_SHEET_ID=
+    VITE_API_KEY=
+    VITE_MERCHANTS_RANGE=
+    VITE_VOLUNTEERS_RANGE=
+    VITE_APPS_SCRIPT_URL=
+   ```
+- `VITE_SHEET_ID` should be the sheet ID of the Google Sheet in use, such as `1_Qdj1r72EYqqdoooAdz7L-L5TbA9J51vP7DOqrNoEHc`
+#### Note: Don't put quotation marks around anything and don't leave a whitespace between the value and the equals sign
+- `VITE_API_KEY` This is your Google Api Key
+- `VITE_MERCHANTS_RANGE` This the Google Sheets range for the columns containing merchant data. For example, `Sheet1!A:M`. It includes the sheet, as each file can have multiple and the range. `A:M` means all the columns starting at A to L(inclusive) because the range is [A,M), M is not included
+- `VITE_VOLUNTEERS_RANGE` This is the same as above
+- `VITE_APPS_SCRIPT_URL=` This is the link to the macro executable that rests direcly on the Google Sheet. For example, 
+`https://script.google.com/macros/s/Some-id/exec`. `Some-id` is the ID of the script, which can be found in the macros editor. The important part is `/exec`, as it allows for execution of functions within the script; it serves as a built-in API.
+
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first

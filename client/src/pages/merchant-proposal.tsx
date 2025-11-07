@@ -10,6 +10,6 @@ import { apiRequest } from "@/lib/queryClient";
 
 export default function MerchantProposal() {
     return (
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdAQZXy-GuJmN6pd_pnrI89fH6hQleuhQy4i4ABL7WmqpqcSg/viewform?embedded=true" width="100%" height="1000" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe5YdN0NhmTP8RIpSxI_4CXRbV-3ShIjCHfv4TDzX76R1Ui2g/viewform?embedded=true" width="100%" height="1000" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
     )
 }
