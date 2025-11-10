@@ -46,15 +46,17 @@ sudo apt-get install google-cloud-cli
    ```bash
     source .env
    ```
-4. Install docker using the provided script, and enable the .env file:
+4. Install docker using the provided script, and distribute docker permissions:
    ```bash
       sudo chmod +x dockerinstall.sh
 
       ./dockerinstall.sh
 
-      source .env
+      sudo usermod -aG docker $USER
+      newgrp docker    
+
    ```
-5. Build the application with:
+5. Start a new terminal window, then build the application with:
    ```bash
     sudo docker compose build --no-cache jamboree-app
    ```
