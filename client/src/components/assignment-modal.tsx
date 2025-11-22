@@ -113,10 +113,7 @@ export default function AssignmentModal({
                 {merchant.business_name}
               </h3>
             </div>
-            <div className="flex gap-2 mb-2">
-              <span className="badge badge-category">{merchant.category}</span>
-              <span className="badge badge-category">{merchant.sub_category}</span>
-            </div>
+            
             <p className="text-sm text-muted-foreground" data-testid="text-modal-merchant-address">
               {merchant.address}
             </p>
