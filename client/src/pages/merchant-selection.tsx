@@ -70,7 +70,7 @@ export default function MerchantSelection() {
   });
 
   // Get unique categories
-  const categories = Array.from(new Set(merchants.map(m => m.category).filter(cat => cat && cat.trim() !== '')));
+  const categories = Array.from(new Set(merchants.map(m => m.category).filter(cat => cat && cat.trim() !== '').sort()));
 
   const handleAssignMerchant = async (merchantName: string, volunteerName: string) => {
     return new Promise((resolve, reject) => {
@@ -106,7 +106,7 @@ export default function MerchantSelection() {
         <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Building2 size={32} className="text-primary-foreground" />
         </div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">Merchant Sponsorship Portal</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-2">Merchant Signup</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Browse and assign merchants for ad sponsorships in the Ridgewood Jamboree program.
         </p>

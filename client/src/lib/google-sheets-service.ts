@@ -8,6 +8,69 @@ const MERCHANTS_RANGE = import.meta.env.VITE_MERCHANTS_RANGE; // Merchant info i
 const VOLUNTEERS_RANGE = import.meta.env.VITE_VOLUNTEERS_RANGE; // People list is in column L
 const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL;
 
+type CategoryIcons =
+  | string // category with no subcategories
+  | {
+      default: string; // required fallback
+      [sub: string]: string; // any other subcategory
+    };
+const iconMap: Record<string, CategoryIcons> = {
+  restaurant: {
+    pizza: "🍕",
+    coffee: "☕",
+    default: "🍽️",
+  },
+  retail: {
+    clothing: "👔",
+    grocery: "🛒",
+    default: "🛍️",
+  },
+  health: {
+    salon: "✂️",
+    default: "🏥",
+  },
+  automotive: {
+    "car-repair": "🔧",
+    default: "🚗",
+  },
+  finance: "🏦",
+  medical: "☤",
+  insurance: "💼",
+  services: "🔧", // no subcategories → allowed
+  default: "🏢",  // global fallback
+};
+
+
+const categoryAliasMap: Record<string, string> = {
+  // Automotive
+  "automotive": "automotive",
+  "auto repair": "automotive",
+  "car repair": "automotive",
+  "mechanic": "automotive",
+
+  // Services
+  "attorneys": "services",
+  "lawyers": "services",
+  "personal": "services",
+  "cleaning services": "services",
+  "construction": "services",
+  "pool construction and maintenance": "services",
+  "home improvement": "services",
+  "medical": "medical",
+
+  // Retail
+  "finance": "finance",       // or "services", up to you
+  "insurance": "insurance",    // also could be "finance"
+
+  "restaurants" : "restaurant",
+  "food/drink" : "restaurant",
+
+  // Default
+  "": "default",
+};
+
+
+
 // Cache implementation for better performance
 class SimpleCache {
   private cache = new Map<string, { data: any; timestamp: number }>();
@@ -225,50 +288,28 @@ export class GoogleSheetsService {
   }
 }
 
-// Business icon mapping based on category and sub-category
-export function getBusinessIcon(
-  category: string,
-  subCategory?: string,
-): string {
-  const iconMap: Record<string, Record<string, string> | string> = {
-    restaurant: {
-      pizza: "🍕",
-      coffee: "☕",
-      default: "🍽️",
-    },
-    retail: {
-      clothing: "👔",
-      grocery: "🛒",
-      default: "🛍️",
-    },
-    health: {
-      salon: "✂️",
-      default: "🏥",
-    },
-    automotive: {
-      "car-repair": "🚗",
-      default: "🔧",
-    },
-    services: "🔧",
-    default: "🏢",
-  };
-
-  const categoryIcons = iconMap[category.toLowerCase()];
-
-  if (typeof categoryIcons === "string") {
-    return categoryIcons;
-  }
-
-  if (categoryIcons && subCategory) {
-    return (
-      categoryIcons[subCategory.toLowerCase()] ||
-      categoryIcons.default ||
-      (iconMap.default as string)
-    );
-  }
-
-  return iconMap.default as string;
+function normalizeCategory(category?: string): string {
+  if (!category) return "default";
+  const key = category.trim().toLowerCase();
+  return categoryAliasMap[key] ?? key;
 }
+
+
+
+// Business icon mapping based on category and sub-category
+export function getBusinessIcon(category?: string, subcategory?: string) {
+  const norm = normalizeCategory(category);
+  console.log("ICON LOOKUP:", { original: category, normalized: norm });
+
+  const entry = iconMap[norm] ?? iconMap.default;
+
+  if (typeof entry === "string") return entry;
+
+  const sub = subcategory?.toLowerCase() || "";
+  return entry[sub] ?? entry.default;
+}
+
+
 
 // Export singleton instance
 export const googleSheetsService = new GoogleSheetsService();

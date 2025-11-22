@@ -5,18 +5,18 @@ gcloud auth login
 
 PROJ_ID=$(gcloud config get-value project)
 
-gcloud artifacts repositories create jamboree \
+gcloud artifacts repositories create jamboree-v2 \
   --repository-format=docker \
   --location=us-east4 \
   --description="Jamboree App Container Repo"
 
 docker compose build --no-cache jamboree-app
-docker tag jamboree-app:latest us-east4-docker.pkg.dev/${PROJ_ID}/jamboree/jamboree-app:latest
+docker tag jamboree-app:latest us-east4-docker.pkg.dev/${PROJ_ID}/jamboree-v2/jamboree-app:latest
 gcloud auth configure-docker us-east4-docker.pkg.dev
-docker push us-east4-docker.pkg.dev/${PROJ_ID}/jamboree/jamboree-app:latest
+docker push us-east4-docker.pkg.dev/${PROJ_ID}/jamboree-v2/jamboree-app:latest
 
 gcloud run deploy ridgewood-jamboree \
   --region us-east4 \
   --allow-unauthenticated \
-  --image us-east4-docker.pkg.dev/${PROJ_ID}/jamboree/jamboree-app:latest \
+  --image us-east4-docker.pkg.dev/${PROJ_ID}/jamboree-v2/jamboree-app:latest \
   --env-vars-file .env

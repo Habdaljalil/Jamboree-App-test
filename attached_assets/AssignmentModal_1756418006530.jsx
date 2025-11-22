@@ -172,13 +172,6 @@ export default function AssignmentModal({
               </option>
             ))}
           </select>
-          <p style={{ 
-            fontSize: 'var(--font-size-xs)', 
-            color: 'var(--muted)', 
-            margin: '4px 0 0 0' 
-          }}>
-            Note: Each volunteer can only have up to 3 merchants assigned.
-          </p>
         </div>
         
         <footer style={{ 

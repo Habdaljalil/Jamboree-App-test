@@ -171,7 +171,7 @@ export default function MerchantSelection() {
     <div style={{ padding: 'var(--gutter)', maxWidth: 'var(--max-w)', margin: '0 auto' }}>
       <header style={{ marginBottom: 'var(--gutter)', textAlign: 'center' }}>
         <h1 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--text)', marginBottom: '0.5rem' }}>
-          Merchant Sponsorship Portal
+          Merchant Signup
         </h1>
         <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--muted)', maxWidth: '60ch', margin: '0 auto' }}>
           Browse and assign merchants for ad sponsorships in the Ridgewood Jamboree program.

@@ -5,13 +5,8 @@ import { title } from "process";
 
 const navigationItems = [
   {
-    title: "Merchant Selection",
-    url: "/merchant-selection",
-    icon: Building2,
-  },
-  {
-    title: "Merchant Proposal",
-    url: "/merchant-proposal",
+    title: "Merchant Proposal/Update",
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSe5YdN0NhmTP8RIpSxI_4CXRbV-3ShIjCHfv4TDzX76R1Ui2g/viewform?embedded=false",
     icon: PlusCircle,
   }
 ];
@@ -58,21 +53,21 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <a className="text-xl font-bold text-foreground nav-link" href="/">Jamboree Connect</a>
+              
             </div>
-
             {/* Desktop Navigation */}
             <div className="desktop-nav items-center space-x-8">
               {navigationItems.map((item) => (
-                <Link 
-                  to={item.url} 
+                <a 
+                  href={item.url}
+                  target="_blank" 
                   key={item.title}
                   className={`nav-link ${location === item.url ? 'active' : ''}`}
                   data-testid={`nav-${item.title.toLowerCase().replace(' ', '-')}`}
                 >
                   <item.icon size={16} />
                   <span>{item.title}</span>
-                </Link>
+                </a>
               ))}
               
               <button 

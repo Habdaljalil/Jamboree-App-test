@@ -80,6 +80,25 @@ function formatAddress(
   return parts.join(" ");
 }
 
+function simpleFormatAddress(streetAndNumber: string, municipality: string, state: string): string {
+  let formattedAddress: string = "";
+  
+  if (streetAndNumber == "") {
+    formattedAddress = "No address provided";
+  } 
+  if (streetAndNumber) {
+    formattedAddress += (streetAndNumber)
+  }
+  if (municipality != "") {
+    formattedAddress += (", " + municipality)
+  }
+  if (state != "") {
+    formattedAddress += (", " + state);
+  }
+  
+  return formattedAddress;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Merchants endpoints
   app.get("/api/merchants", async (req, res) => {
@@ -94,25 +113,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .slice(1)
         .map((row: string[], index: number) => ({
           id: `merchant_${index}`,
-          business_name: row[0] || "",
-          category: row[7] || "", // Column H - Index Category
+          business_name: row[4] || "", // Column A - Business name
+          category: row[11] || "", // Column L - Index Category
           sub_category: "", // Will be set dynamically in UI
-          address: formatAddress(
-            row[1] || "",
-            row[2] || "",
-            row[3] || "",
-            row[4] || "",
-            row[5] || "",
-          ), // Column B-F for address
-          contact_person: row[10] || "", // Column K - Advertiser Contact
-          phone: row[8] || "", // Column I - Merchant Phone
-          email: row[9] || "", // Column J - Advertiser E-mail
+          address: simpleFormatAddress(row[5], row[8], row[9]),
+          // contact_person: row[10] || "", // Column K - Advertiser Contact
+          phone: row[12] || "No phone number on record", // Column M - Merchant Phone
+          email: row[13] || "No email on record", // Column N - Advertiser E-mail
           status: "active",
-          previous_ad_size: row[11] || null, // Column L - Previous ad size
-          assigned_to: row[12] || null, // Column M - cast who sold the ad
+          previous_ad_size: row[3] || "Merchant did not purchase", // Column D - Previous ad size
+          assigned_to: row[1] || null, // Column B - cast member assigned to the merchant
         }))
         .filter(
-          (m: any) => m.business_name.trim() !== "" && m.category.trim() !== "",
+          (m: any) => m.business_name.trim() !== ""
         );
 
       res.json(merchants);
@@ -220,18 +233,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const assignments = responseData.values
         .slice(1)
-        .filter((row: string[]) => row[11] === volunteerName)
+        .filter((row: string[]) => row[1] === volunteerName)
         .map((row: string[], index: number) => ({
           id: `merchant_${index}`,
-          business_name: row[0] || "",
-          category: row[3] || "",
-          sub_category: row[2] || "",
-          address: row[3] || "",
-          contact_person: row[4] || "",
-          phone: row[5] || "",
-          email: row[6] || "",
-          status: row[7] || "active",
-          assigned_to: row[11] || null,
+          business_name: row[4] || "", // Column A - Business name
+          category: row[11] || "", // Column L - Index Category
+          sub_category: "", // Will be set dynamically in UI
+          address: (row[5] + ", " + row[8] + ", " + row[9]),
+          // contact_person: row[10] || "", // Column K - Advertiser Contact
+          phone: row[12] || "No phone number on record", // Column M - Merchant Phone
+          email: row[13] || "No email on record", // Column N - Advertiser E-mail
+          status: "active",
+          previous_ad_size: row[3] || "Merchant did not purchase", // Column D - Previous ad size
+          assigned_to: row[1] || null, // Column B - cast member assigned to the merchant
         }));
 
       res.json(assignments);

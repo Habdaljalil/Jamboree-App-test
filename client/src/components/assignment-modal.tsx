@@ -140,9 +140,6 @@ export default function AssignmentModal({
                 </option>
               ))}
             </select>
-            <p className="text-xs text-muted-foreground mt-1">
-              Note: Each volunteer can only have up to 3 merchants assigned.
-            </p>
           </div>
 
           {/* Actions */}

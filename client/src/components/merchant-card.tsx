@@ -9,6 +9,12 @@ interface MerchantCardProps {
 }
 
 export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) {
+    console.log("DEBUG merchant:", {
+    id: merchant.id,
+    category: merchant.category,
+    sub_category: merchant.sub_category,
+    icon: getBusinessIcon(merchant.category, merchant.sub_category),
+    raw: merchant,});
   return (
     <div className="bg-card border border-border rounded-lg p-6 card-hover" data-testid={`merchant-card-${merchant.id}`}>
       {/* Header */}
