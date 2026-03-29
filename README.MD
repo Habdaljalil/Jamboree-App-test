@@ -6,11 +6,12 @@ Jamboree Connect(name subject to change) is a platform that allows members of Ri
 
 ## Installation
 ### Requirements
-1. Docker(version 24.0.7), for building the application
-2. Google Account for deploying to Google Cloud(optional)
-3. Ubuntu version >= 22.04 with root privileges
-4. Git, github
-5. Google CLI
+1. Node.js (version 20 or later) and npm, for building and running the application
+2. Docker (optional, for containerized deployment)
+3. Google Account for deploying to Google Cloud(optional)
+4. Ubuntu version >= 22.04 with root privileges
+5. Git, github
+6. Google CLI
 ### Pre-install Instructions
 1. To install the Google cloud CLI, run:
 ```bash
@@ -46,26 +47,34 @@ sudo apt-get install google-cloud-cli
    ```bash
     source .env
    ```
-4. Install docker using the provided script, and distribute docker permissions:
+4. Install dependencies:
    ```bash
-      sudo chmod +x dockerinstall.sh
-
-      ./dockerinstall.sh
-
-      sudo usermod -aG docker $USER
-      newgrp docker    
-
+    npm install
    ```
-5. Start a new terminal window, then build the application with:
+5. Build the application:
    ```bash
-    sudo docker compose build --no-cache jamboree-app
+    npm run build
    ```
 6. Test the application locally with:
    ```bash
-    sudo docker run -p 8080:8080 --env-file .env jamboree-app
+    npm start
    ```
 
-Once you have seen that the local version works, proceed to deploy to Google Cloud
+Once you have seen that the local version works, proceed to deploy to Google Cloud or use Docker for containerized deployment.
+
+### Docker Deployment (Optional)
+If you prefer to use Docker for local testing or deployment:
+
+1. Install Docker as per the pre-install instructions.
+2. Build the Docker image:
+   ```bash
+    sudo docker compose build --no-cache jamboree-app
+   ```
+3. Run the application in a container:
+   ```bash
+    sudo docker run -p 8080:8080 --env-file .env jamboree-app
+   ```
+#### Note: In some environments (e.g., GitHub Codespaces), Docker may encounter shim version issues. In such cases, use the local npm method above.
 ### Google Cloud Deployment
 
 1. Go to https://console.cloud.google.com
