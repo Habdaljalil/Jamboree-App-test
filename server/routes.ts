@@ -117,12 +117,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: row[11] || "", // Column L - Index Category
           sub_category: "", // Will be set dynamically in UI
           address: simpleFormatAddress(row[5], row[8], row[9]),
-          // contact_person: row[10] || "", // Column K - Advertiser Contact
+          contact_person: row[10] || "", // Column K - Advertiser Contact
           phone: row[12] || "No phone number on record", // Column M - Merchant Phone
           email: row[13] || "No email on record", // Column N - Advertiser E-mail
           status: "active",
           previous_ad_size: row[3] || "Merchant did not purchase", // Column D - Previous ad size
-          assigned_to: row[1] || null, // Column B - cast member assigned to the merchant
+          assigned_to: row[16] || null, // Column B - cast member assigned to the merchant
         }))
         .filter(
           (m: any) => m.business_name.trim() !== ""
@@ -240,12 +240,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           category: row[11] || "", // Column L - Index Category
           sub_category: "", // Will be set dynamically in UI
           address: (row[5] + ", " + row[8] + ", " + row[9]),
-          // contact_person: row[10] || "", // Column K - Advertiser Contact
+          // person: row[10] || "", // Column K - Advertiser Contact
           phone: row[12] || "No phone number on record", // Column M - Merchant Phone
           email: row[13] || "No email on record", // Column N - Advertiser E-mail
           status: "active",
           previous_ad_size: row[3] || "Merchant did not purchase", // Column D - Previous ad size
-          assigned_to: row[1] || null, // Column B - cast member assigned to the merchant
+          assigned_to: row[16] || null, // Column B - cast member assigned to the merchant
         }));
 
       res.json(assignments);
