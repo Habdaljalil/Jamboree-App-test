@@ -5,9 +5,10 @@ import { title } from "process";
 
 const navigationItems = [
   {
-    title: "Merchant Proposal/Update",
-    url: "https://docs.google.com/forms/d/e/1FAIpQLSe5YdN0NhmTP8RIpSxI_4CXRbV-3ShIjCHfv4TDzX76R1Ui2g/viewform?embedded=false",
+    title: "Merchant Management",
+    url: "https://rhsjamboree.org/merchant-manage",
     icon: PlusCircle,
+    subtitle: "Add · Not Interested · Out of Business",
   }
 ];
 
@@ -67,6 +68,7 @@ export default function Layout({ children }: LayoutProps) {
                 >
                   <item.icon size={16} />
                   <span>{item.title}</span>
+                  <span font-size = "12px" font-style = "italic">{item.subtitle || ""}</span>
                 </a>
               ))}
               
