@@ -1,15 +1,26 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Building2, Loader, RefreshCw } from "lucide-react";
+import {
+  Building2,
+  Loader,
+  RefreshCw,
+  LayoutGrid,
+  Table2,
+} from "lucide-react";
+
 import { type Merchant, type Volunteer } from "@shared/schema";
 import SearchFilters from "@/components/search-filters";
 import MerchantCard from "@/components/merchant-card";
 import AssignmentModal from "@/components/assignment-modal";
 import { apiRequest } from "@/lib/queryClient";
 
+type ViewMode = "grid" | "table";
+
 export default function MerchantSelection() {
   const queryClient = useQueryClient();
+
   const [searchText, setSearchText] = useState("");
   const [assignmentFilter, setAssignmentFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -17,11 +28,16 @@ export default function MerchantSelection() {
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const [visibleCount, setVisibleCount] = useState(30);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // Fetch merchants with auto-refresh
-  const { data: merchants = [], isLoading: merchantsLoading, refetch: refetchMerchants } = useQuery<Merchant[]>({
+  const {
+    data: merchants = [],
+    isLoading: merchantsLoading,
+    refetch: refetchMerchants,
+  } = useQuery<Merchant[]>({
     queryKey: ["/api/merchants"],
-    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    refetchInterval: 30000,
     refetchIntervalInBackground: true,
   });
 
@@ -32,60 +48,87 @@ export default function MerchantSelection() {
 
   // Assignment mutation
   const assignMutation = useMutation({
-    mutationFn: async ({ merchantName, volunteerName }: { merchantName: string; volunteerName: string }) => {
-      const response = await apiRequest("POST", "/api/assignments", { merchantName, volunteerName });
+    mutationFn: async ({
+      merchantName,
+      volunteerName,
+    }: {
+      merchantName: string;
+      volunteerName: string;
+    }) => {
+      const response = await apiRequest(
+        "POST",
+        "/api/assignments",
+        { merchantName, volunteerName }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Assignment failed');
+        throw new Error(errorData.message || "Assignment failed");
       }
+
       return response.json();
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/merchants"] });
       setSelectedMerchant(null);
     },
+
     onError: (error) => {
-      console.error('Assignment failed:', error);
+      console.error("Assignment failed:", error);
     },
   });
 
-  // Filter merchants based on search criteria
-  const filteredMerchants = merchants.filter(merchant => {
-    // Search filter
-    const matchesSearch = !searchText || 
-      merchant.business_name.toLowerCase().includes(searchText.toLowerCase()) ||
-      merchant.category.toLowerCase().includes(searchText.toLowerCase()) ||
-      merchant.sub_category.toLowerCase().includes(searchText.toLowerCase()) ||
-      merchant.address.toLowerCase().includes(searchText.toLowerCase());
+  // Filter merchants
+  const filteredMerchants = merchants.filter((merchant) => {
+    const search = searchText.toLowerCase();
 
-    // Assignment filter
-    const matchesAssignment = assignmentFilter === 'all' ||
-      (assignmentFilter === 'assigned' && merchant.assigned_to) ||
-      (assignmentFilter === 'unassigned' && !merchant.assigned_to);
+    const matchesSearch =
+      !searchText ||
+      merchant.business_name.toLowerCase().includes(search) ||
+      merchant.category.toLowerCase().includes(search) ||
+      merchant.sub_category.toLowerCase().includes(search) ||
+      merchant.address.toLowerCase().includes(search);
 
-    // Category filter
-    const matchesCategory = categoryFilter === 'all' || merchant.category === categoryFilter;
+    const matchesAssignment =
+      assignmentFilter === "all" ||
+      (assignmentFilter === "assigned" && merchant.assigned_to) ||
+      (assignmentFilter === "unassigned" && !merchant.assigned_to);
+
+    const matchesCategory =
+      categoryFilter === "all" ||
+      merchant.category === categoryFilter;
 
     return matchesSearch && matchesAssignment && matchesCategory;
   });
 
   // Get unique categories
-  const categories = Array.from(new Set(merchants.map(m => m.category).filter(cat => cat && cat.trim() !== '').sort()));
+  const categories = Array.from(
+    new Set(
+      merchants
+        .map((merchant) => merchant.category)
+        .filter((category) => category && category.trim() !== "")
+        .sort()
+    )
+  );
 
-  const handleAssignMerchant = async (merchantName: string, volunteerName: string) => {
+  // Handle assignment
+  const handleAssignMerchant = async (
+    merchantName: string,
+    volunteerName: string
+  ) => {
     return new Promise((resolve, reject) => {
-      assignMutation.mutate({ merchantName, volunteerName }, {
-        onSuccess: (data) => {
-          resolve(data);
-        },
-        onError: (error) => {
-          reject(error);
+      assignMutation.mutate(
+        { merchantName, volunteerName },
+        {
+          onSuccess: (data) => resolve(data),
+          onError: (error) => reject(error),
         }
-      });
+      );
     });
   };
 
-  // Manual refresh handler
+  // Manual refresh
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await refetchMerchants();
@@ -93,7 +136,7 @@ export default function MerchantSelection() {
   };
 
   const loadMoreMerchants = () => {
-    setVisibleCount(prev => prev + 30);
+    setVisibleCount((prev) => prev + 30);
   };
 
   const visibleMerchants = filteredMerchants.slice(0, visibleCount);
@@ -106,23 +149,28 @@ export default function MerchantSelection() {
         <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Building2 size={32} className="text-primary-foreground" />
         </div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">Merchant Signup</h1>
+
+        <h1 className="text-4xl font-bold text-foreground mb-2">
+          Merchant Signup
+        </h1>
+
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Browse and assign merchants for ad sponsorships in the Ridgewood Jamboree program.
+          Browse and assign merchants for ad sponsorships in the Ridgewood
+          Jamboree program.
         </p>
 
-        {/* Manual Refresh Button */}
-        <button 
-          className="btn-secondary mt-4" 
+        <button
+          className="btn-secondary mt-4"
           onClick={handleRefresh}
           disabled={isRefreshing}
           data-testid="button-refresh"
         >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          <span>{isRefreshing ? 'Refreshing...' : 'Refresh Data'}</span>
+          <RefreshCw
+            className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+          />
+          <span>{isRefreshing ? "Refreshing..." : "Refresh Data"}</span>
         </button>
       </header>
-
 
       {/* Search and Filters */}
       <div className="max-w-none mb-6">
@@ -137,12 +185,57 @@ export default function MerchantSelection() {
         />
       </div>
 
-      {/* Results Counter */}
-      <div className="text-center mb-6">
-        <p className="text-sm text-muted-foreground" data-testid="text-results-count">
-          Showing <strong className="text-foreground">{visibleMerchants.length}</strong> of <strong className="text-foreground">{filteredMerchants.length}</strong> merchants
-          ({merchants.length} total)
+      {/* Results Counter and View Toggle */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+        <p
+          className="text-sm text-muted-foreground"
+          data-testid="text-results-count"
+        >
+          Showing{" "}
+          <strong className="text-foreground">
+            {visibleMerchants.length}
+          </strong>{" "}
+          of{" "}
+          <strong className="text-foreground">
+            {filteredMerchants.length}
+          </strong>{" "}
+          merchants ({merchants.length} total)
         </p>
+
+        {/* View Toggle */}
+        <div
+          className="inline-flex items-center rounded-lg border border-border bg-muted p-1"
+          role="group"
+          aria-label="Merchant view"
+        >
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              viewMode === "grid"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            aria-pressed={viewMode === "grid"}
+            data-testid="button-grid-view"
+          >
+            <LayoutGrid size={16} />
+            Grid
+          </button>
+
+          <button
+            onClick={() => setViewMode("table")}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              viewMode === "table"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            aria-pressed={viewMode === "table"}
+            data-testid="button-table-view"
+          >
+            <Table2 size={16} />
+            Table
+          </button>
+        </div>
       </div>
 
       {/* Loading State */}
@@ -154,8 +247,11 @@ export default function MerchantSelection() {
       )}
 
       {/* Merchant Grid */}
-      {!merchantsLoading && (
-        <div className="grid grid-responsive gap-6 mb-8" data-testid="merchant-grid">
+      {!merchantsLoading && viewMode === "grid" && (
+        <div
+          className="grid grid-responsive gap-6 mb-8"
+          data-testid="merchant-grid"
+        >
           {visibleMerchants.map((merchant, index) => (
             <motion.div
               key={merchant.id}
@@ -163,8 +259,8 @@ export default function MerchantSelection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <MerchantCard 
-                merchant={merchant} 
+              <MerchantCard
+                merchant={merchant}
                 onAssign={() => setSelectedMerchant(merchant)}
               />
             </motion.div>
@@ -172,29 +268,154 @@ export default function MerchantSelection() {
         </div>
       )}
 
+      {/* Merchant Table */}
+      {!merchantsLoading && viewMode === "table" && (
+        <div
+          className="w-full overflow-x-auto rounded-xl border border-border mb-8"
+          data-testid="merchant-table"
+        >
+          <table className="w-full text-sm text-left">
+            <thead className="bg-muted/70 text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Business Name
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Category
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Subcategory
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Address
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Contact Person
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Phone
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Email
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Status
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Previous Ad Size
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Assigned To
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Last Year's Solicitor
+                </th>
+                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-border">
+              {visibleMerchants.map((merchant) => (
+                <tr
+                  key={merchant.id}
+                  className="hover:bg-muted/40 transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
+                    {merchant.business_name || "—"}
+                  </td>
+
+                  <td className="px-4 py-3">
+                    {merchant.category || "—"}
+                  </td>
+
+                  <td className="px-4 py-3">
+                    {merchant.sub_category || "—"}
+                  </td>
+
+                  <td className="px-4 py-3 min-w-48">
+                    {merchant.address || "—"}
+                  </td>
+
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {merchant.contact_person || "—"}
+                  </td>
+
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {merchant.phone || "—"}
+                  </td>
+
+                  <td className="px-4 py-3">
+                    {merchant.email || "—"}
+                  </td>
+
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {merchant.status || "—"}
+                  </td>
+
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {merchant.previous_ad_size || "—"}
+                  </td>
+
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {merchant.assigned_to || "Unassigned"}
+                  </td>
+
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {merchant.previous_solicitor || "No solicitor last year"}
+                  </td>
+
+                  <td className="px-4 py-3">
+                    {merchant.assigned_to ? (
+  <span className="text-sm text-muted-foreground font-medium whitespace-nowrap">
+    Already Assigned
+  </span>
+) : (
+  <button
+    className="btn-apple w-full whitespace-nowrap"
+    onClick={() => setSelectedMerchant(merchant)}
+    data-testid={`button-assign-${merchant.id}`}
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+    Select This Merchant
+  </button>
+)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Empty State */}
       {!merchantsLoading && visibleMerchants.length === 0 && (
         <div className="text-center py-16" data-testid="empty-state">
           <Building2 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-foreground mb-2">No merchants found</h3>
-          <p className="text-muted-foreground">Try adjusting your search filters to see more results.</p>
+          <h3 className="text-xl font-semibold text-foreground mb-2">
+            No merchants found
+          </h3>
+          <p className="text-muted-foreground">
+            Try adjusting your search filters to see more results.
+          </p>
         </div>
       )}
 
       {/* Load More Button */}
       {hasMore && !merchantsLoading && (
         <div className="text-center">
-          <button 
-            className="btn-apple" 
+          <button
+            className="btn-apple"
             onClick={loadMoreMerchants}
             data-testid="button-load-more"
           >
             <Building2 size={16} />
-            Load More Merchants ({Math.max(0, filteredMerchants.length - visibleCount)} remaining)
+            Load More Merchants (
+            {Math.max(0, filteredMerchants.length - visibleCount)} remaining)
           </button>
         </div>
       )}
-      
 
       {/* Assignment Modal */}
       {selectedMerchant && (

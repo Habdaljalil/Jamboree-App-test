@@ -15,6 +15,7 @@ export const merchants = pgTable("merchants", {
   status: text("status").notNull().default("active"),
   assigned_to: text("assigned_to"),
   previous_ad_size: text("previous_ad_size").default("did not purchase ad last year"),
+  previous_solicitor: text("previous_solicitor").default("Not assigned to anybody last year"),
   /*
   I added previous_ad_size; if there is no data, it will default to 
   `did not purchase ad last year`.

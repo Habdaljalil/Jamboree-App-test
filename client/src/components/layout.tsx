@@ -59,18 +59,25 @@ export default function Layout({ children }: LayoutProps) {
             {/* Desktop Navigation */}
             <div className="desktop-nav items-center space-x-8">
               {navigationItems.map((item) => (
-                <a 
-                  href={item.url}
-                  target="_blank" 
-                  key={item.title}
-                  className={`nav-link ${location === item.url ? 'active' : ''}`}
-                  data-testid={`nav-${item.title.toLowerCase().replace(' ', '-')}`}
-                >
-                  <item.icon size={16} />
-                  <span>{item.title}</span>
-                  <span font-size = "12px" font-style = "italic">{item.subtitle || ""}</span>
-                </a>
-              ))}
+  <a
+    href={item.url}
+    target="_blank"
+    key={item.title}
+    className={`nav-link ${location === item.url ? 'active' : ''}`}
+    data-testid={`nav-${item.title.toLowerCase().replace(' ', '-')}`}
+  >
+    <item.icon size={16} />
+
+    <div className="flex flex-col justify-center">
+      <span>{item.title}</span>
+      {item.subtitle && (
+        <span style={{ fontSize: '.725rem', fontStyle: 'italic' }}>
+          {item.subtitle}
+        </span>
+      )}
+    </div>
+  </a>
+))}
               
               <button 
                 className="theme-toggle" 

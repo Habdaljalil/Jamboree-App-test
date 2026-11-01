@@ -1,109 +1,218 @@
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { string } from "zod";
-import { configDotenv, DotenvConfigOptions } from "dotenv";
-// Import Google Sheets Service
-// const SHEET_ID = "1KCizb55EhOFAqmN-7SlBaUp0qHNJRZwFWhvG_ITno0w";
-// const API_KEY = "AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc";
-// const MERCHANTS_RANGE = "Sheet1!A:M"; // I updated this to include the new column
-// const VOLUNTEERS_RANGE = "Sheet1!M:M"; // I shifted this to the new volunteers' column
-// const APPS_SCRIPT_URL =
-//   "https://script.google.com/macros/s/AKfycby43gvbpZK9-5jRyrV1z1XJ4KG_MudXk0ry1IM158WrBPcF4WAfJjJNvTwpFB8DR_wV/exec";
-// const MAX_ASSIGNMENTS_PER_VOLUNTEER = 3;
-configDotenv();
-const SHEET_ID = process.env.VITE_SHEET_ID;
-const API_KEY = process.env.VITE_API_KEY;
-const MERCHANTS_RANGE = process.env.VITE_MERCHANTS_RANGE; // Merchant info in columns A to L
-const VOLUNTEERS_RANGE = process.env.VITE_VOLUNTEERS_RANGE; // People list is in column L
-const APPS_SCRIPT_URL = process.env.VITE_APPS_SCRIPT_URL;
 
-// Cache for Google Sheets data
+// --------------------------------------------------
+// CENTRAL CONFIGURATION
+// --------------------------------------------------
+
+const CONFIG_SHEET_ID = "1ZT9oh-HC5TauAGyjtCaXYkdz4iiGd5esKmpdghVV2qo";
+const CONFIG_TAB_NAME = "Sheet1";
+
+interface ColumnMappings {
+  businessName: string;
+  category: string;
+  street: string;
+  municipality: string;
+  state: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  previousAdSize: string;
+  assignedTo: string;
+  volunteerName: string;
+  previousSolicitor: string;
+}
+
+interface AppConfig {
+  sheetId: string;
+  apiKey: string;
+  merchantsRange: string;
+  volunteersRange: string;
+  appsScriptUrl: string;
+  columns: ColumnMappings;
+}
+
+// --------------------------------------------------
+// COLUMN LETTER CONVERSION
+// --------------------------------------------------
+
+function columnLetterToIndex(column: string): number {
+  let index = 0;
+
+  for (const character of column.trim().toUpperCase()) {
+    index = index * 26 + character.charCodeAt(0) - 64;
+  }
+
+  return index - 1;
+}
+
+// Retrieve a value from a row using its configured
+// Google Sheets column letter.
+function getCell(row: string[], column: string): string {
+  return row[columnLetterToIndex(column)] || "";
+}
+
+// --------------------------------------------------
+// CENTRAL CONFIGURATION LOADER
+// --------------------------------------------------
+
+// Parse an individual CSV line, including quoted values
+// and escaped quotation marks.
+function parseCsvLine(line: string): string[] {
+  const values: string[] = [];
+  let current = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const character = line[i];
+
+    if (character === '"') {
+      if (insideQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (character === "," && !insideQuotes) {
+      values.push(current);
+      current = "";
+    } else {
+      current += character;
+    }
+  }
+
+  values.push(current);
+
+  return values;
+}
+
+async function loadConfig(): Promise<AppConfig> {
+  const configUrl =
+    `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq` +
+    `?tqx=out:csv&sheet=${encodeURIComponent(CONFIG_TAB_NAME)}`;
+
+  const response = await fetch(configUrl);
+
+  if (!response.ok) {
+    throw new Error("Failed to load central configuration");
+  }
+
+  const csv = await response.text();
+
+  const values = csv
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => parseCsvLine(line)[0] || "");
+
+  return {
+    sheetId: values[0],
+    apiKey: values[1],
+    merchantsRange: values[2],
+    volunteersRange: values[3],
+    appsScriptUrl: values[4],
+
+    columns: {
+      businessName: values[5],
+      category: values[6],
+      street: values[7],
+      municipality: values[8],
+      state: values[9],
+      contactPerson: values[10],
+      phone: values[11],
+      email: values[12],
+      previousAdSize: values[13],
+      assignedTo: values[14],
+      volunteerName: values[15],
+      previousSolicitor: values[16]
+    },
+  };
+}
+
+// --------------------------------------------------
+// GOOGLE SHEETS CACHE
+// --------------------------------------------------
+
 const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 30000; // 30 seconds
+const CACHE_TTL = 30000;
 
-async function fetchFromGoogleSheets(range: string, useCache = true) {
-  const cacheKey = `sheets_${range}`;
+async function fetchFromGoogleSheets(
+  config: AppConfig,
+  range: string,
+  useCache = true
+) {
+  const cacheKey = `sheets_${config.sheetId}_${range}`;
   const now = Date.now();
 
   if (useCache && cache.has(cacheKey)) {
     const cached = cache.get(cacheKey)!;
+
     if (now - cached.timestamp < CACHE_TTL) {
       return cached.data;
     }
   }
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const url =
+    `https://sheets.googleapis.com/v4/spreadsheets/` +
+    `${config.sheetId}/values/${encodeURIComponent(range)}` +
+    `?key=${encodeURIComponent(config.apiKey)}`;
+
   const response = await fetch(url);
   const data = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      `Google Sheets API error: ${data.error?.message || "Unknown error"}`,
+      `Google Sheets API error: ${data.error?.message || "Unknown error"}`
     );
   }
 
-  cache.set(cacheKey, { data, timestamp: now });
+  cache.set(cacheKey, {
+    data,
+    timestamp: Date.now(),
+  });
+
   return data;
 }
 
-function formatAddress(
-  street: string,
-  streetMaster: string,
-  number: string,
-  town: string,
-  state: string,
+// --------------------------------------------------
+// ADDRESS FORMATTING
+// --------------------------------------------------
+
+function simpleFormatAddress(
+  streetAndNumber: string,
+  municipality: string,
+  state: string
 ): string {
-  const parts: string[] = [];
+  const parts = [
+    streetAndNumber,
+    municipality,
+    state,
+  ].filter((part) => part && part.trim() !== "");
 
-  // Use street number if available
-  if (number && number.trim()) {
-    parts.push(number.trim());
-  }
-
-  // Use the main street name (prefer streetMaster if available, otherwise use street)
-  const streetName =
-    (streetMaster && streetMaster.trim()) || (street && street.trim());
-  if (streetName) {
-    parts.push(streetName);
-  }
-
-  // Add town and state
-  if (town && town.trim()) {
-    const townPart = town.trim();
-    if (state && state.trim()) {
-      parts.push(`${townPart}, ${state.trim()}`);
-    } else {
-      parts.push(townPart);
-    }
-  }
-
-  return parts.join(" ");
+  return parts.length > 0
+    ? parts.join(", ")
+    : "No address provided";
 }
 
-function simpleFormatAddress(streetAndNumber: string, municipality: string, state: string): string {
-  let formattedAddress: string = "";
-  
-  if (streetAndNumber == "") {
-    formattedAddress = "No address provided";
-  } 
-  if (streetAndNumber) {
-    formattedAddress += (streetAndNumber)
-  }
-  if (municipality != "") {
-    formattedAddress += (", " + municipality)
-  }
-  if (state != "") {
-    formattedAddress += (", " + state);
-  }
-  
-  return formattedAddress;
-}
+// --------------------------------------------------
+// ROUTES
+// --------------------------------------------------
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Merchants endpoints
+
+  // Load configuration once at startup.
+  const config = await loadConfig();
+
+  // ----------------------------------------------
+  // MERCHANTS
+  // ----------------------------------------------
+
   app.get("/api/merchants", async (req, res) => {
     try {
-      const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE);
+      const responseData = await fetchFromGoogleSheets(
+        config,
+        config.merchantsRange
+      );
 
       if (!responseData.values || responseData.values.length === 0) {
         return res.json([]);
@@ -113,34 +222,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .slice(1)
         .map((row: string[], index: number) => ({
           id: `merchant_${index}`,
-          business_name: row[4] || "", // Column A - Business name
-          category: row[11] || "", // Column L - Index Category
-          sub_category: "", // Will be set dynamically in UI
-          address: simpleFormatAddress(row[5], row[8], row[9]),
-          contact_person: row[10] || "", // Column K - Advertiser Contact
-          phone: row[12] || "No phone number on record", // Column M - Merchant Phone
-          email: row[13] || "No email on record", // Column N - Advertiser E-mail
+
+          business_name: getCell(
+            row,
+            config.columns.businessName
+          ),
+
+          category: getCell(
+            row,
+            config.columns.category
+          ),
+
+          sub_category: "",
+
+          address: simpleFormatAddress(
+            getCell(row, config.columns.street),
+            getCell(row, config.columns.municipality),
+            getCell(row, config.columns.state)
+          ),
+
+          contact_person:
+            getCell(row, config.columns.contactPerson),
+
+          phone:
+            getCell(row, config.columns.phone) ||
+            "No phone number on record",
+
+          email:
+            getCell(row, config.columns.email) ||
+            "No email on record",
+
           status: "active",
-          previous_ad_size: row[24] || "Merchant did not purchase", // Column D - Previous ad size
-          assigned_to: row[3] || null, // Column B - cast member assigned to the merchant
+
+          previous_ad_size:
+            getCell(row, config.columns.previousAdSize) ||
+            "Merchant did not purchase",
+
+          assigned_to:
+            getCell(row, config.columns.assignedTo) || null,
+          
+          previous_solicitor:
+            getCell(row, config.columns.previousSolicitor) || null,
         }))
         .filter(
-          (m: any) => m.business_name.trim() !== ""
+          (merchant: any) =>
+            merchant.business_name.trim() !== ""
         );
 
       res.json(merchants);
+
     } catch (error) {
       console.error("Error fetching merchants:", error);
-      res
-        .status(500)
-        .json({ message: "Failed to fetch merchants from Google Sheets" });
+
+      res.status(500).json({
+        message: "Failed to fetch merchants from Google Sheets",
+      });
     }
   });
 
-  // Volunteers endpoints
+  // ----------------------------------------------
+  // VOLUNTEERS
+  // ----------------------------------------------
+
   app.get("/api/volunteers", async (req, res) => {
     try {
-      const responseData = await fetchFromGoogleSheets(VOLUNTEERS_RANGE);
+      const responseData = await fetchFromGoogleSheets(
+        config,
+        config.volunteersRange
+      );
 
       if (!responseData.values || responseData.values.length === 0) {
         return res.json([]);
@@ -150,82 +299,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
         new Set(
           responseData.values
             .slice(1)
-            .map((row: string[]) => row[0])
-            .filter((name: string) => name && name.trim() !== ""),
-        ),
+            .map((row: string[]) =>
+              getCell(row, config.columns.volunteerName)
+            )
+            .filter(
+              (name: string) => name && name.trim() !== ""
+            )
+        )
       );
 
-      const volunteers = volunteerNames.map((name: string, index: number) => ({
-        id: `volunteer_${index}`,
-        full_name: name,
-        email: `${name.toLowerCase().replace(/\s+/g, ".")}@email.com`,
-        phone: `(201) 555-${String(index + 1000).padStart(4, "0")}`,
-        role: "volunteer",
-        active: true,
-      }));
+      const volunteers = volunteerNames.map(
+        (name: string, index: number) => ({
+          id: `volunteer_${index}`,
+          full_name: name,
+          email: `${name.toLowerCase().replace(/\s+/g, ".")}@email.com`,
+          phone: `(201) 555-${String(index + 1000).padStart(4, "0")}`,
+          role: "volunteer",
+          active: true,
+        })
+      );
 
       res.json(volunteers);
+
     } catch (error) {
       console.error("Error fetching volunteers:", error);
-      res
-        .status(500)
-        .json({ message: "Failed to fetch volunteers from Google Sheets" });
+
+      res.status(500).json({
+        message: "Failed to fetch volunteers from Google Sheets",
+      });
     }
   });
 
-  // Assignment endpoints
+  // ----------------------------------------------
+  // ASSIGNMENTS
+  // ----------------------------------------------
+
   app.post("/api/assignments", async (req, res) => {
     try {
       const { merchantName, volunteerName } = req.body;
 
       if (!merchantName || !volunteerName) {
-        return res
-          .status(400)
-          .json({ message: "Merchant name and volunteer name are required" });
+        return res.status(400).json({
+          message: "Merchant name and volunteer name are required",
+        });
       }
 
-      // Check current assignments for the volunteer
-      const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE, false);
-      if (responseData.values) {
-        const currentAssignments = responseData.values
-          .slice(1)
-          .filter((row: string[]) => row[11] === volunteerName).length;
-
-        // if (currentAssignments >= MAX_ASSIGNMENTS_PER_VOLUNTEER) {
-        //   return res
-        //     .status(400)
-        //     .json({
-        //       message: "Volunteer already has maximum of 3 assignments",
-        //     });
-        // }
-      }
-
-      // Call the Apps Script endpoint to update the sheet
-      const response = await fetch(APPS_SCRIPT_URL, {
+      const response = await fetch(config.appsScriptUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ merchantName, volunteerName }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          merchantName,
+          volunteerName,
+        }),
       });
 
       const data = await response.json();
 
       if (data.status === "success") {
-        // Clear cache to force refresh
         cache.clear();
-        res.json({ success: true, message: data.message });
-      } else {
-        res.status(400).json({ message: data.message || "Assignment failed" });
+
+        return res.json({
+          success: true,
+          message: data.message,
+        });
       }
+
+      res.status(400).json({
+        message: data.message || "Assignment failed",
+      });
+
     } catch (error) {
       console.error("Assignment error:", error);
-      res.status(500).json({ message: "Failed to assign merchant" });
+
+      res.status(500).json({
+        message: "Failed to assign merchant",
+      });
     }
   });
+
+  // ----------------------------------------------
+  // VOLUNTEER ASSIGNMENTS
+  // ----------------------------------------------
 
   app.get("/api/assignments/:volunteerName", async (req, res) => {
     try {
       const volunteerName = req.params.volunteerName;
-      const responseData = await fetchFromGoogleSheets(MERCHANTS_RANGE);
+
+      const responseData = await fetchFromGoogleSheets(
+        config,
+        config.merchantsRange
+      );
 
       if (!responseData.values || responseData.values.length === 0) {
         return res.json([]);
@@ -233,28 +398,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const assignments = responseData.values
         .slice(1)
-        .filter((row: string[]) => row[1] === volunteerName)
+        .filter(
+          (row: string[]) =>
+            getCell(row, config.columns.assignedTo) === volunteerName
+        )
         .map((row: string[], index: number) => ({
           id: `merchant_${index}`,
-          business_name: row[4] || "", // Column A - Business name
-          category: row[11] || "", // Column L - Index Category
-          sub_category: "", // Will be set dynamically in UI
-          address: (row[5] + ", " + row[8] + ", " + row[9]),
-          // person: row[10] || "", // Column K - Advertiser Contact
-          phone: row[12] || "No phone number on record", // Column M - Merchant Phone
-          email: row[13] || "No email on record", // Column N - Advertiser E-mail
+
+          business_name: getCell(
+            row,
+            config.columns.businessName
+          ),
+
+          category: getCell(
+            row,
+            config.columns.category
+          ),
+
+          sub_category: "",
+
+          address: simpleFormatAddress(
+            getCell(row, config.columns.street),
+            getCell(row, config.columns.municipality),
+            getCell(row, config.columns.state)
+          ),
+
+          phone:
+            getCell(row, config.columns.phone) ||
+            "No phone number on record",
+
+          email:
+            getCell(row, config.columns.email) ||
+            "No email on record",
+
           status: "active",
-          previous_ad_size: row[24] || "Merchant did not purchase", // Column D - Previous ad size
-          assigned_to: row[3] || null, // Column B - cast member assigned to the merchant
+
+          previous_ad_size:
+            getCell(row, config.columns.previousAdSize) ||
+            "Merchant did not purchase",
+
+          assigned_to:
+            getCell(row, config.columns.assignedTo) || null,
         }));
 
       res.json(assignments);
+
     } catch (error) {
       console.error("Error fetching assignments:", error);
-      res.status(500).json({ message: "Failed to fetch assignments" });
+
+      res.status(500).json({
+        message: "Failed to fetch assignments",
+      });
     }
   });
 
+  // ----------------------------------------------
+  // HTTP SERVER
+  // ----------------------------------------------
+
   const httpServer = createServer(app);
+
   return httpServer;
 }

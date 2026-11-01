@@ -94,15 +94,23 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
       </div>
 
       {/* Footer */}
-      {merchant.assigned_to ? (
-        <div className="pt-4 border-t border-border">
+
+          <div className="pt-4 border-t border-border">
+      
+        
+          <p className="text-sm">
+            <span className="text-muted-foreground">Last Year's Solicitor: </span>
+            <span className="font-semibold text-foreground" data-testid={`text-assigned-to-${merchant.id}`}>
+              {merchant.previous_solicitor || "No solicitor last year"}
+            </span>
+          </p>
+          {merchant.assigned_to ? (
           <p className="text-sm">
             <span className="text-muted-foreground">Assigned to: </span>
             <span className="font-semibold text-foreground" data-testid={`text-assigned-to-${merchant.id}`}>
               {merchant.assigned_to}
             </span>
           </p>
-        </div>
       ) : (
         <div className="pt-4">
           <button 
@@ -115,6 +123,7 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }
