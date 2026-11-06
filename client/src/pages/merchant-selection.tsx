@@ -274,118 +274,117 @@ export default function MerchantSelection() {
           className="w-full overflow-x-auto rounded-xl border border-border mb-8"
           data-testid="merchant-table"
         >
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/70 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Business Name
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Category
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Subcategory
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Address
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Contact Person
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Phone
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Email
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Status
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Previous Ad Size
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Assigned To
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Last Year's Solicitor
-                </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
-                  Action
-                </th>
-              </tr>
-            </thead>
 
-            <tbody className="divide-y divide-border">
-              {visibleMerchants.map((merchant) => (
-                <tr
-                  key={merchant.id}
-                  className="hover:bg-muted/40 transition-colors"
+
+<table className="w-full text-sm text-left">
+  <thead className="bg-muted/70 text-muted-foreground">
+    <tr>
+      {[
+        "Business Name",
+        "Category",
+        "Address",
+        "Contact Information",
+        "Previous Year Information",
+      ].map((heading) => (
+        <th
+          key={heading}
+          className="px-4 py-3 font-semibold whitespace-nowrap"
+        >
+          {heading}
+        </th>
+      ))}
+    </tr>
+  </thead>
+
+  <tbody className="divide-y divide-border">
+    {visibleMerchants.map((merchant) => (
+      <tr
+        key={merchant.id}
+        className="hover:bg-muted/40 transition-colors"
+      >
+        {/* Business Name + Assignment */}
+        <td className="px-4 py-3 min-w-56">
+          <div className="space-y-2">
+            <div className="font-medium text-foreground">
+              {merchant.business_name || "—"}
+            </div>
+
+            {merchant.assigned_to ? (
+              <div className="text-sm text-muted-foreground">
+  Assigned to:
+  <div className="font-medium text-foreground">
+    {merchant.assigned_to}
+  </div>
+</div>
+            ) : (
+              <button
+                className="btn-apple whitespace-nowrap"
+                onClick={() => setSelectedMerchant(merchant)}
+                data-testid={`button-assign-${merchant.id}`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="inline-block mr-2"
                 >
-                  <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
-                    {merchant.business_name || "—"}
-                  </td>
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" x2="19" y1="8" y2="14" />
+                  <line x1="22" x2="16" y1="11" y2="11" />
+                </svg>
+                Select This Merchant
+              </button>
+            )}
+          </div>
+        </td>
 
-                  <td className="px-4 py-3">
-                    {merchant.category || "—"}
-                  </td>
+        <td className="px-4 py-3">
+          {merchant.category || "—"}
+        </td>
 
-                  <td className="px-4 py-3">
-                    {merchant.sub_category || "—"}
-                  </td>
+        <td className="px-4 py-3 min-w-48">
+          {merchant.address || "—"}
+        </td>
 
-                  <td className="px-4 py-3 min-w-48">
-                    {merchant.address || "—"}
-                  </td>
+        {/* Contact Information */}
+        <td className="px-4 py-3 min-w-48">
+          <div className="space-y-1">
+            <div>{merchant.contact_person || "—"}</div>
+            <div className="text-muted-foreground">
+              {merchant.phone || "—"}
+            </div>
+            <div className="text-muted-foreground">
+              {merchant.email || "—"}
+            </div>
+          </div>
+        </td>
 
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {merchant.contact_person || "—"}
-                  </td>
+        {/* Previous Year Information */}
+        <td className="px-4 py-3 min-w-48">
+          <div className="space-y-1">
+            <div>
+              <span className="text-muted-foreground">Ad Size: </span>
+              {merchant.previous_ad_size || "—"}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Last Solicitor: </span>
+              {merchant.previous_solicitor || "No solicitor last year"}
+            </div>
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {merchant.phone || "—"}
-                  </td>
 
-                  <td className="px-4 py-3">
-                    {merchant.email || "—"}
-                  </td>
-
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {merchant.status || "—"}
-                  </td>
-
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {merchant.previous_ad_size || "—"}
-                  </td>
-
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {merchant.assigned_to || "Unassigned"}
-                  </td>
-
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {merchant.previous_solicitor || "No solicitor last year"}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    {merchant.assigned_to ? (
-  <span className="text-sm text-muted-foreground font-medium whitespace-nowrap">
-    Already Assigned
-  </span>
-) : (
-  <button
-    className="btn-apple w-full whitespace-nowrap"
-    onClick={() => setSelectedMerchant(merchant)}
-    data-testid={`button-assign-${merchant.id}`}
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
-    Select This Merchant
-  </button>
-)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { MapPin, Phone, Mail, CheckCircle, User, UserPlus, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, CheckCircle, User, UserPlus, Clock, PersonStanding } from "lucide-react";
 import { type Merchant } from "@shared/schema";
 import { getBusinessIcon } from "@/lib/google-sheets-service";
 
@@ -89,6 +89,20 @@ export default function MerchantCard({ merchant, onAssign }: MerchantCardProps) 
             </a>
           ) : (
             <span className="text-sm text-muted-foreground">No email</span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <User size={16} className="text-muted-foreground flex-shrink-0" />
+          {merchant.contact_person ? (
+            <a 
+              className="text-sm text-primary truncate"
+              data-testid={`link-email-${merchant.id}`}
+            >
+              {merchant.contact_person}
+            </a>
+          ) : (
+            <span className="text-sm text-muted-foreground">No contact person</span>
           )}
         </div>
       </div>

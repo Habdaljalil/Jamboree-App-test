@@ -141,11 +141,11 @@ async function loadConfig(): Promise<AppConfig> {
       street: "F",
       municipality: "I",
       state: "J",
-      contactPerson: "K",
+      contactPerson: "O",
       phone: "M",
       email: "N",
       previousAdSize: "Y",
-      assignedTo: "A",
+      assignedTo: "D",
       volunteerName: "A",
       previousSolicitor: "Q",
     }
