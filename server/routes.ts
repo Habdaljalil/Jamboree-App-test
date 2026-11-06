@@ -105,28 +105,51 @@ async function loadConfig(): Promise<AppConfig> {
     .split(/\r?\n/)
     .map((line) => parseCsvLine(line)[0] || "");
 
+  // return {
+  //   sheetId: values[0],
+  //   apiKey: values[1],
+  //   merchantsRange: values[2],
+  //   volunteersRange: values[3],
+  //   appsScriptUrl: values[4],
+
+  //   columns: {
+  //     businessName: values[5],
+  //     category: values[6],
+  //     street: values[7],
+  //     municipality: values[8],
+  //     state: values[9],
+  //     contactPerson: values[10],
+  //     phone: values[11],
+  //     email: values[12],
+  //     previousAdSize: values[13],
+  //     assignedTo: values[14],
+  //     volunteerName: values[15],
+  //     previousSolicitor: values[16]
+  //   },
+  // }; temporarily disable the long-term maintanance feature
+
   return {
-    sheetId: values[0],
-    apiKey: values[1],
-    merchantsRange: values[2],
-    volunteersRange: values[3],
-    appsScriptUrl: values[4],
+    sheetId: "1Ex4MUGhPFf2B7OW53F2jisJJIsV16FFEmqRTwV-C6e0",
+    apiKey: "AIzaSyBBJEfU6h_PQfVN4_H2eAo5spS0ZP6rsmc",
+    merchantsRange: "current_year_merchmaster!A:Z",
+    volunteersRange: "thisyears_importallfundraisers!A:A",
+    appsScriptUrl: "https://script.google.com/macros/s/AKfycbxQSWH_8mP7fn-53LdUEzWFdS2q-3HiSIMTzEYOz7n6LIyItx4dgpY2REvN9m3-Gz25/exec",
 
     columns: {
-      businessName: values[5],
-      category: values[6],
-      street: values[7],
-      municipality: values[8],
-      state: values[9],
-      contactPerson: values[10],
-      phone: values[11],
-      email: values[12],
-      previousAdSize: values[13],
-      assignedTo: values[14],
-      volunteerName: values[15],
-      previousSolicitor: values[16]
-    },
-  };
+      businessName: "E",
+      category: "L",
+      street: "F",
+      municipality: "I",
+      state: "J",
+      contactPerson: "K",
+      phone: "M",
+      email: "N",
+      previousAdSize: "Y",
+      assignedTo: "A",
+      volunteerName: "A",
+      previousSolicitor: "Q",
+    }
+  }
 }
 
 // --------------------------------------------------
